@@ -334,7 +334,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         </div>
 
 
-                        {!filteredData.qr_code_data && <div className="col-span-12 lg:col-span-3 mt-8 lg:mt-0 lg:ml-2 ">
+                        {filteredData.name != "0" && filteredData.qr_code_data && <div className="col-span-12 lg:col-span-3 mt-8 lg:mt-0 lg:ml-2 ">
                             <div className="w-full flex flex-col items-center justify-center">
                                 <h2 className="text-2xl font-bold tracking-tight mb-3">DuitNow QR</h2>
                                 <Image
