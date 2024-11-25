@@ -1,0 +1,1 @@
+../../nxt_helpers/components/FirebaseProvider.tsx
