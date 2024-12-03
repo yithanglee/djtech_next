@@ -13,9 +13,10 @@ export default function MembersPage() {
       </div>
 
       <DataTable
-        preloads={['organization']}
+        preloads={['organization', 'role']}
         showNew={true}
         model={'Staff'}
+     
         search_queries={['a.name']}
         customCols={
           [
@@ -23,6 +24,14 @@ export default function MembersPage() {
               title: 'General',
               list: [
                 'id', 'username', 'name', 'password', 'email', 'phone',
+                {
+                  label: 'role_id',
+                  customCols: null,
+                  selection: 'Role',
+                  search_queries: ['a.name'],
+                  newData: 'name',
+                  title_key: 'name'
+                },
                 {
                   label: 'organization_id',
                   customCols: null,

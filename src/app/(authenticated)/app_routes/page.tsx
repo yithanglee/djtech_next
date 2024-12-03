@@ -1,6 +1,4 @@
-'use client';
 import DataTable from "@/components/data/table"
-import ModelProvider from "@/lib/provider"
 
 
 export default function SellersPage() {
@@ -8,16 +6,15 @@ export default function SellersPage() {
   // This is a placeholder for future implementation
 
   return (
-    <ModelProvider modelName="roleAppRoutes">
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Roles</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Member Groups</h2>
         
       </div>
 
       <DataTable 
         showNew={true}
-        model={'Role'}
+        model={'AppRoute'}
         // preloads={['organization']}
      
         search_queries={['a.name']}
@@ -28,7 +25,7 @@ export default function SellersPage() {
               list: [
                 'id',
                 'name',
-                'desc',
+                'route',
                
                 // {
                 //   label: 'organization_id',
@@ -50,16 +47,14 @@ export default function SellersPage() {
         }
         columns={[
           // { label: 'Organization', data: 'name', through: ['organization'] },
-          { label: 'ID', data: 'id' },
+        
           { label: 'Name', data: 'name' },
-     
-          { label: 'Desc', data: 'desc' },
+          { label: 'Route', data: 'route' },
 
         ]}
 
 
       />
     </div>
-    </ModelProvider>
   )
 }

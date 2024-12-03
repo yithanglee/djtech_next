@@ -89,7 +89,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
             return v.id == id
         })[0]
 
-      
+
         console.log(filteredResult)
         if (filteredResult) {
             setFilteredData(filteredResult)
@@ -102,12 +102,12 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
 
     useEffect(() => {
-    
+
         console.log('filteredData')
         console.log(filteredData)
         console.log(colInputs)
         console.log(filteredData.name)
-      
+
         if (filteredData.name != "0") {
             const channel = socket.channel('user:' + filteredData.name, {})
 
@@ -130,14 +130,14 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                 setIsConnected(false)
             }, 11000);
             return () => {
-          
+
                 channel.leave()
                 socket.disconnect()
             }
         }
 
         setIsJSChartingLoaded(true)
-      
+
     }, [filteredData, colInputs])
 
 
@@ -151,6 +151,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
             'item_name',
             `Send ` + formData.get('value') + ` reps (shorter ` + formData.get('delay') + `)`
         );
+
 
 
         postData({
@@ -197,7 +198,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                 response.json().then((wifi_time_logs) => {
                     let formattedData: [] = formatData(wifi_time_logs);
                     if (formattedData.length > 0) {
-                        if (chart){
+                        if (chart) {
                             chart.destroy()
                         }
                         chart = new window.JSC.Chart(chartRef.current, {
@@ -239,14 +240,14 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     ])
 
 
- 
+
 
     return (
         <>
 
             <Script src="/vendor/js_charting/js_charting.js"
 
-               />
+            />
             <div className="space-y-6">
 
                 <BreadcrumbHelper items={[
@@ -270,7 +271,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         <div className="col-span-12 lg:col-span-3">
 
                             <h2 className="text-2xl font-bold tracking-tight mb-3">Device Settings</h2>
-                            { filteredData.name != "0" && <>
+                            {filteredData.name != "0" && <>
                                 <DynamicForm
                                     module={'Device'}
                                     data={filteredData}
@@ -283,7 +284,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                                 'default_io_pin',
                                                 'default_delay',
                                                 'format',
-                                                'short_name',
+                                        
+                                         
                                             { label: 'record_wifi_time', boolean: true },
                                             { label: 'is_active', boolean: true }
                                             ]
@@ -319,7 +321,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         </div>
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label >Reps</Label>
-                                            <Input type="text" name={"value"}></Input>
+                                            <Input type="number" name={"value"}></Input>
                                         </div>
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label >Format</Label>
