@@ -28,7 +28,7 @@ export default function AuthenticatedLayout({
   }
 
   const { user, isLoading } = useAuth()
-  console.log(user?.role?.app_routes)
+
   console.log(user?.userStruct?.role?.app_routes)
   console.log(user?.userStruct?.role?.app_routes.map((v: any) => { return v.route }))
 
