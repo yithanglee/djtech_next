@@ -12,7 +12,7 @@ export default function DevicesPage() {
   function hrefFn(data: any) {
     console.log(data)
     const subdomain = data.outlet != null ? data.outlet?.subdomain : "";
-    return 'http://localhost:5126?d=' + data.name + '&location=' + subdomain;
+    // return 'http://localhost:5126?d=' + data.name + '&location=' + subdomain;
 	
     return 'https://iot.djtech4u.com?d=' + data.name + '&location=' + subdomain;
   }
