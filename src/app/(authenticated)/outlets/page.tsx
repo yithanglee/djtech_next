@@ -37,7 +37,7 @@ export default function SellersPage() {
                   title_key: 'name'
                 },
                 { label: 'price_per_minutes' },
-                { label: 'payment_gateway', selection: ['RM', 'ipay88', 'fiuu'] },
+                { label: 'payment_gateway', selection: ['RM', 'ipay88', 'fiuu', 'fiuu_online'] },
 
 
 

@@ -28,31 +28,15 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const [filteredData, setFilteredData] = useState<any>({ id: 0, name: 0, outlet: { name: '' } });
     let { toast } = useToast()
 
-
-
-
-
-    const [isConnected, setIsConnected] = useState(false)
     const wsUrl = PHX_ENDPOINT
-
-
     const socket = new Socket(`${PHX_WS_PROTOCOL}${wsUrl}/socket`)
     socket.connect()
 
-
-
     const fetchColInputs = async () => {
         const inputs = await genInputs(url, 'Device');
-
         setColInputs(inputs);
     };
-    const chartRef = useRef<HTMLDivElement>(null)
-    const [isJSChartingLoaded, setIsJSChartingLoaded] = useState(false)
 
-    const handleJsChartingLoad = () => {
-        alert("!")
-        setIsJSChartingLoaded(true)
-    }
     const fetchCurrentData = () => {
         fetch(`${url}/svt_api/webhook?scope=get_role_app_routes&id=${id}`).then((response: any) => {
             console.log(response)
@@ -69,15 +53,12 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
     useEffect(() => {
         fetchColInputs();
-
         const storedData = localStorage.getItem('roleAppRoutesData');  // Replace 'modelData' with your key
         if (storedData) {
             setData(JSON.parse(storedData));  // Parse and set the data in state
-
         } else {
             fetchCurrentData()
         }
-
 
     }, []);
 
@@ -101,17 +82,13 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     }, [data])
 
 
-
-
-
-
     return (
         <>
-
-
             <div className="space-y-6">
-
-
+                <BreadcrumbHelper items={[
+                    { link: '/roles', title: 'Roles' },
+                    { link: `/roles/${filteredData.id}/app_routes`, title: `${filteredData.name}` },
+                ]} />
 
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight mb-3">Role App Routes</h2>
@@ -120,7 +97,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         appendQueries={{ role_id: id }}
                         model={'RoleAppRoute'}
                         preloads={['app_route']}
-                        search_queries={['a.uuid']}
+                        // search_queries={['a.uuid']}
                         customCols={
                             [
                                 {
@@ -128,7 +105,21 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                     list: [
                                         'id',
                                         'role_id',
-                                        'app_route_id',
+                                        {
+                                            label: 'app_route_id',
+                                            selection: 'AppRoute',
+                                            multiSelection: true,
+                                            dataList: [],
+                                            parentId: id,
+                                            alt_class: 'w-full lg:w-1/3 mx-4 my-2',
+                                            customCols: null,
+                                            newData: 'name',
+                                            title_key: 'name'
+                                        },
+
+
+
+                                        
                                     ]
                                 },
                                 {
@@ -140,10 +131,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         }
                         columns={[
                             { label: 'ID', data: 'id' },
-                            { label: 'App Route', data: 'name' , through: ['app_route']},
-                            { label: 'App Route', data: 'route' , through: ['app_route']},
-                            { label: 'Remarks', data: 'remarks', subtitle: { label: 'ref', data: 'uuid' } },
-                            // { label: 'Ref', data: 'uuid' },
+                            { label: 'App Route', data: 'name', through: ['app_route'] },
+                            { label: 'App Route', data: 'route', through: ['app_route'] },
                             { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
                         ]}
 

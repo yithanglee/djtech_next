@@ -11,7 +11,10 @@ export default function DevicesPage() {
   const { user, isLoading } = useAuth();
   function hrefFn(data: any) {
     console.log(data)
-    return '/devices/' + data.id + '/details';
+    const subdomain = data.outlet != null ? data.outlet?.subdomain : "";
+    return 'http://localhost:5126?d=' + data.name + '&location=' + subdomain;
+	
+    return 'https://iot.djtech4u.com?d=' + data.name + '&location=' + subdomain;
   }
 
   function clickFn(data: any, name: string) {
@@ -23,7 +26,9 @@ export default function DevicesPage() {
       'Clear Logs': () => {
         console.log("Clear Logs")
       },
-      // 'Website': websiteFn,
+      'Website': () => {
+        console.log("Website")
+      },
       'Regen QR': () => {
 
         postData({
@@ -46,11 +51,6 @@ export default function DevicesPage() {
     }
 
     mapFunction[name]()
-
-    // toast({
-    //   title: `${name} Completed`,
-    //   description: `Your action on ${data.name} was successful!`,
-    // })
     return null;
   }
 
@@ -77,8 +77,8 @@ export default function DevicesPage() {
           model={'Device'}
           preloads={['outlet', 'executor_board', 'organization']}
           buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
-
-          { name: 'Regen QR', onclickFn: clickFn },
+            { name: 'Regen QR', onclickFn: clickFn },
+          { name: 'Website', onclickFn: clickFn, href: hrefFn },
           { name: 'Control', onclickFn: clickFn, href: hrefFn }]}
           search_queries={['a.name']}
           customCols={

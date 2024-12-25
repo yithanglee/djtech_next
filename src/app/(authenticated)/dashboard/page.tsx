@@ -32,7 +32,7 @@ export default function LibraryManagementSystem() {
 
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
       <Tabs defaultValue="sales" className="space-y-4">
         <TabsList>
@@ -219,7 +219,73 @@ export default function LibraryManagementSystem() {
               <CardDescription>View and manage your outlet locations.</CardDescription>
             </CardHeader>
             <CardContent>
+              <DataTable canDelete={true}
+                appendQueries={{ organization_id: user?.userStruct?.organization_id }}
+                showNew={true}
+                model={'Outlet'}
+                preloads={['organization']}
+                search_queries={['a.name']}
+                customCols={
+                  [
+                    {
+                      title: 'General',
+                      list: [
+                        { label: 'id', alt_class: 'hidden' },
+                        'name',
+                        'uid', 'mcode', 'mkey', 'subdomain', 'currency',
+                        {
+                          label: 'organization_id',
+                          customCols: null,
+                          selection: 'Organization',
+                          search_queries: ['a.name'],
+                          newData: 'name',
+                          title_key: 'name'
+                        },
+                        { label: 'price_per_minutes' },
+                        { label: 'payment_gateway', selection: ['RM', 'ipay88', 'fiuu'] },
 
+
+
+                      ]
+                    },
+                    {
+                      title: 'Detail',
+                      list: [{ label: 'id', alt_class: 'hidden' },
+                      { label: 'address', editor2: true },
+                        'block_reason',
+                      { label: 'is_blocked', boolean: true }
+                      ]
+                    },
+                  ]
+                }
+                columns={[
+                  { label: 'ID', data: 'id' },
+                  { label: 'Organization', data: 'name', through: ['organization'] },
+                  { label: 'Name', data: 'name', subtitle: { label: 'address', data: 'address' } },
+                  { label: 'Subdomain', data: 'subdomain' },
+                  { label: 'Ref', data: 'uid' },
+                  { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 },
+                  {
+                    label: 'Blocked?',
+                    data: 'is_blocked',
+                    isBadge: true,
+                    color: [
+                      {
+                        key: true,
+                        value: 'red'
+                      },
+                      {
+                        key: false,
+                        value: 'green'
+                      }
+                    ]
+                  }
+
+
+                ]}
+
+
+              />
             </CardContent>
           </Card>
         </TabsContent>

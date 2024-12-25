@@ -8,7 +8,7 @@ export default function SellersPage() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Member Groups</h2>
+        <h2 className="text-3xl font-bold tracking-tight">App Routes</h2>
         
       </div>
 
@@ -47,7 +47,7 @@ export default function SellersPage() {
         }
         columns={[
           // { label: 'Organization', data: 'name', through: ['organization'] },
-        
+          { label: 'ID', data: 'id' },
           { label: 'Name', data: 'name' },
           { label: 'Route', data: 'route' },
 
