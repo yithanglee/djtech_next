@@ -111,7 +111,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                             multiSelection: true,
                                             dataList: [],
                                             parentId: id,
-                                            alt_class: 'w-full lg:w-1/3 mx-4 my-2',
+                                            alt_class: 'w-full  mx-4 my-2',
                                             customCols: null,
                                             newData: 'name',
                                             title_key: 'name'

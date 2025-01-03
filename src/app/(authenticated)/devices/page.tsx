@@ -5,10 +5,17 @@ import { useAuth } from "@/lib/auth";
 import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from "@/lib/constants";
 import ModelProvider from "@/lib/provider";
 import { postData } from "@/lib/svt_utils";
+import { useRouter } from "next/navigation";
 export default function DevicesPage() {
+  const router = useRouter();
   let { toast } = useToast()
 
   const { user, isLoading } = useAuth();
+  function hrefFn2(data: any) {
+    console.log(data)
+    return '/devices/' + data.id + '/details';
+  }
+
   function hrefFn(data: any) {
     console.log(data)
     const subdomain = data.outlet != null ? data.outlet?.subdomain : "";
@@ -47,7 +54,10 @@ export default function DevicesPage() {
 
         console.log("Regen QR")
       },
-      // 'Control': controlFn,
+      'Control': () => {
+        console.log("Control")
+        router.push('/devices/' + data.id + '/details')
+      },
     }
 
     mapFunction[name]()
@@ -79,7 +89,7 @@ export default function DevicesPage() {
           buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
             { name: 'Regen QR', onclickFn: clickFn },
           { name: 'Website', onclickFn: clickFn, href: hrefFn },
-          { name: 'Control', onclickFn: clickFn, href: hrefFn }]}
+          { name: 'Control', onclickFn: clickFn  }]}
           search_queries={['a.name']}
           customCols={
             [

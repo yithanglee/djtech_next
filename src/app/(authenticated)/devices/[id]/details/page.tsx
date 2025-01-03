@@ -281,6 +281,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                             title: 'General',
                                             list: [{ label: 'id', alt_class: 'hidden w-1/3  mx-4 my-2 ' },
                                             { label: 'label', alt_class: 'w-full mx-4 my-2 lg:w-2/3' },
+                                                'reading_pin',
                                                 'default_io_pin',
                                                 'default_delay',
                                                 'format',
@@ -385,6 +386,38 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                             { label: 'ID', data: 'id' },
                             { label: 'Remarks', data: 'remarks', subtitle: { label: 'ref', data: 'uuid' } },
                             // { label: 'Ref', data: 'uuid' },
+                            { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                        ]}
+
+
+                    />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight mb-3">Pin Readings</h2>
+                    <DataTable canDelete={true}
+                        showNew={true}
+                        appendQueries={{ device_id: id }}
+                        model={'IoReading'}
+                        search_queries={['a.log']}
+                        customCols={
+                            [
+                                {
+                                    title: 'General',
+                                    list: [
+                                        'id',
+                                    ]
+                                },
+                                {
+                                    title: 'Detail',
+                                    list: [
+                                    ]
+                                },
+                            ]
+                        }
+                        columns={[
+                            { label: 'ID', data: 'id' },
+                            { label: 'Remarks', data: 'log' },
+                            { label: 'Final Data', data: 'final_data' },
                             { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
                         ]}
 
