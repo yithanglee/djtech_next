@@ -62,13 +62,11 @@ export default function LoginPage() {
   }, [initTurnstile])
 
   useEffect(() => {
-    // If turnstile is already loaded when component mounts
     if (window.turnstile) {
       handleTurnstileLoad()
     }
 
     return () => {
-      // Cleanup turnstile widget when component unmounts
       if (window.turnstile && turnstileWidgetId.current) {
         window.turnstile.remove(turnstileWidgetId.current)
       }
@@ -80,19 +78,19 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const token = window.turnstile?.getResponse(turnstileWidgetId.current)
+      // const token = window.turnstile?.getResponse(turnstileWidgetId.current)
       
-      if (!token) {
-        toast({
-          title: "Verification Required",
-          description: "Please complete the verification challenge.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-        return
-      }
+      // if (!token) {
+      //   toast({
+      //     title: "Verification Required",
+      //     description: "Please complete the verification challenge.",
+      //     variant: "destructive",
+      //   })
+      //   setIsLoading(false)
+      //   return
+      // }
 
-      await handleLogin(email, password, token)
+      await handleLogin(email, password, '')
     } catch (error) {
       console.error('Login error:', error)
       toast({

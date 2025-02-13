@@ -144,8 +144,11 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const sendCustomCommand = async (e: React.FormEvent) => {
         e.preventDefault()
         const form = e.target as HTMLFormElement
+
         const formData = new FormData(form)
 
+
+        const formObject: Record<string, any> = {};
 
         formData.append(
             'item_name',
@@ -154,10 +157,25 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
 
 
+        formData.forEach((value, key) => {
+            // Handle multiple values (like checkboxes)
+            if (formObject[key]) {
+                formObject[key] = Array.isArray(formObject[key])
+                    ? [...formObject[key], value]
+                    : [formObject[key], value];
+            } else {
+                formObject[key] = value;
+            }
+        });
+
+        formObject["delay"] = Number(formObject["delay"])
+
+
+
         postData({
             endpoint: `${url}/svt_api/webhook`,
-            data: formData,
-            isFormData: true,
+            data: formObject,
+            isFormData: false,
             successCallback: () => {
                 toast({
                     title: `Completed`,
@@ -318,7 +336,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         <Input type="hidden" name={"action"} value={'start'}></Input>
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label >Delay</Label>
-                                            <Input type="text" name={"delay"}></Input>
+                                            <Input type="number" step="0.1" name={"delay"}></Input>
                                         </div>
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label >Reps</Label>
