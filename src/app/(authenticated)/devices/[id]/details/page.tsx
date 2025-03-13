@@ -306,6 +306,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         
                                          
                                             { label: 'record_wifi_time', boolean: true },
+                                            { label: 'is_round_down', boolean: true },
+                                            { label: 'keep_pending_task', boolean: true },
                                             { label: 'is_active', boolean: true }
                                             ]
                                         }
