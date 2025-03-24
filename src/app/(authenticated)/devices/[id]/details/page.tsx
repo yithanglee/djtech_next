@@ -13,12 +13,18 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import Script from "next/dist/client/script";
 import Image from 'next/image';
-import { Socket } from "phoenix";
+import { Socket, Channel } from "phoenix";
 declare global {
     interface Window {
         JSC: any
     }
 }
+
+interface DevicePayload {
+    status: string;
+    timestamp: string;
+}
+
 export default function DetailsPage({ params }: { params: { id: string } }) {
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -28,18 +34,21 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const [filteredData, setFilteredData] = useState<any>({ id: 0, name: 0, outlet: { name: '' } });
     let { toast } = useToast()
 
-
-
-
-
     const [isConnected, setIsConnected] = useState(false)
     const wsUrl = PHX_ENDPOINT
+    const socketRef = useRef<Socket | null>(null)
+    const channelRef = useRef<Channel | null>(null)
+    const offlineTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-
-    const socket = new Socket(`${PHX_WS_PROTOCOL}${wsUrl}/socket`)
-    socket.connect()
-
-
+    // Function to reset the offline timeout
+    const resetOfflineTimeout = () => {
+        if (offlineTimeoutRef.current) {
+            clearTimeout(offlineTimeoutRef.current)
+        }
+        offlineTimeoutRef.current = setTimeout(() => {
+            setIsConnected(false)
+        }, 4900) // 4 seconds timeout
+    }
 
     const fetchColInputs = async () => {
         const inputs = await genInputs(url, 'Device');
@@ -100,46 +109,60 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
     }, [data])
 
-
     useEffect(() => {
+        if (filteredData.name && filteredData.name !== "0") {
+            // Initialize socket if it doesn't exist
+            if (!socketRef.current) {
+                socketRef.current = new Socket(`${PHX_WS_PROTOCOL}${wsUrl}/socket`, {
+                    heartbeatIntervalMs: 30000,  // Set heartbeat interval to 30 seconds
+                    params: {
+                        device: filteredData.name
+                    }
+                })
+                socketRef.current.connect()
+            }
 
-        console.log('filteredData')
-        console.log(filteredData)
-        console.log(colInputs)
-        console.log(filteredData.name)
+            // Create and join channel
+            const channel = socketRef.current.channel(`user:${filteredData.name}`, {})
+            channelRef.current = channel
 
-        if (filteredData.name != "0") {
-            const channel = socket.channel('user:' + filteredData.name, {})
+            // Set initial state to offline
+            setIsConnected(false)
 
             channel.join()
                 .receive('ok', () => {
-                    console.log(`Successfully joined channel ${filteredData.name}`)
-                    setIsConnected(true)
+                    console.log(`Successfully joined device channel ${filteredData.name}`)
+                    // Don't set isConnected here, wait for i_am_online event
                 })
-                .receive('error', (resp) => {
-                    console.error('Unable to join channel', resp)
+                .receive('error', (resp: { reason?: string }) => {
+                    console.error('Unable to join device channel', resp)
+                    setIsConnected(false)
                 })
 
-            channel.on('i_am_online', (payload) => {
-                console.info(payload);
-                setIsConnected(true);
-            });
+            channel.on('i_am_online', (payload: DevicePayload) => {
+                console.info('Device online status update:', payload)
+                setIsConnected(true)
+                resetOfflineTimeout() // Start/reset the 4-second timeout
+            })
 
-            setInterval(() => {
-                console.log('set offline');
-                setIsConnected(false)
-            }, 11000);
+            // Cleanup function
             return () => {
-
-                channel.leave()
-                socket.disconnect()
+                if (offlineTimeoutRef.current) {
+                    clearTimeout(offlineTimeoutRef.current)
+                }
+                if (channel) {
+                    channel.leave()
+                }
+                if (socketRef.current) {
+                    socketRef.current.disconnect()
+                    socketRef.current = null
+                }
+                channelRef.current = null
             }
         }
-
         setIsJSChartingLoaded(true)
 
-    }, [filteredData, colInputs])
-
+    }, [filteredData.name]) // Only depend on device name
 
     const sendCustomCommand = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -303,12 +326,13 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                                 'default_io_pin',
                                                 'default_delay',
                                                 'format',
-                                        
-                                         
+
+
                                             { label: 'record_wifi_time', boolean: true },
                                             { label: 'is_round_down', boolean: true },
                                             { label: 'keep_pending_task', boolean: true },
-                                            { label: 'is_active', boolean: true }
+                                            { label: 'is_active', boolean: true },
+                                            { label: 'is_rs232', boolean: true }
                                             ]
                                         }
                                     ]}
