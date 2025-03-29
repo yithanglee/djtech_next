@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 import { AuthProvider } from '@/lib/auth'
 import Script from "next/script";
 
-
-const inter = Inter({ subsets: ['latin'] })
+const inter = localFont({
+  src: '../../public/fonts/Inter Variable/Inter.ttf',
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
   title: 'DJTech',
@@ -18,16 +20,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" >
-
-      <body className={inter.className}>
-
+    <html lang="en">
+      <body className={`${inter.className} ${inter.variable}`}>
         <AuthProvider>
-       
-            {children}
-         
+          {children}
         </AuthProvider>
-
       </body>
     </html>
   )
