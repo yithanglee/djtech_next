@@ -88,7 +88,7 @@ export default function DevicesPage() {
           preloads={['outlet', 'executor_board', 'organization']}
           buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
             { name: 'Regen QR', onclickFn: clickFn },
-          { name: 'Website', onclickFn: clickFn, href: hrefFn },
+          // { name: 'Website', onclickFn: clickFn, href: hrefFn },
           { name: 'Control', onclickFn: clickFn  }]}
           search_queries={['a.name']}
           customCols={
@@ -158,7 +158,7 @@ export default function DevicesPage() {
           }
           columns={[
 
-            { label: 'Label', data: 'label', subtitle: { label: 'name', data: 'name' } },
+            { label: 'Label', data: 'label', subtitle: { label: 'name', data: 'name' }, altClass: 'font-bold capitalize' },
             { label: 'Timestamp', data: 'inserted_at', offset: 8, formatDateTime: true },
             {
               label: 'In service?', data: 'is_active', color: [
@@ -171,10 +171,10 @@ export default function DevicesPage() {
                   key: true,
                   value: 'default'
                 }
-              ]
+              ], altClass: 'mt-2'
             },
-            { label: 'Outlet', data: 'name', through: ['outlet'] },
-            { label: 'Organization', data: 'name', through: ['organization'] },
+            { label: 'Outlet', data: 'name', through: ['outlet'] , altClass: 'lg:mt-0 mt-2'},
+            { label: 'Organization', data: 'name', through: ['organization'] , altClass: ''},
           ]}
 
 

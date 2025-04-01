@@ -1,18 +1,55 @@
 "use client"
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAuth } from "@/lib/auth"
 import { useToast } from "@/hooks/use-toast"
 import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from '@/lib/constants'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import DataTable from '@/components/data/table'
-export default function LibraryManagementSystem() {
+import SalesHistoryChart from '@/components/charts/sales-history'
 
+interface SalesDataEntry {
+  outlet: string
+  device: string
+  organization: string
+  amount: number
+  year: string
+  [key: string]: any // For dynamic day_X properties
+}
+
+export default function Dashboard() {
+  const [salesData, setSalesData] = useState<SalesDataEntry[]>([])
+  const [currentYearMonth, setCurrentYearMonth] = useState("2025-01")
   const { user, isLoading } = useAuth();
   console.log(user)
   const { toast } = useToast()
-  const url = `${PHX_HTTP_PROTOCOL}/${PHX_ENDPOINT}`
+  const url = `${PHX_HTTP_PROTOCOL}${PHX_ENDPOINT}`
+
+
+  console.log('url', url)
+
+  const fetchSalesData = (yearMonth: string) => {
+    const appendOrganization = user?.userStruct?.organization_id ? `&organization_id=${user?.userStruct?.organization_id}` : ''
+    fetch(`${url}/svt_api/webhook?scope=current_month_outlet_trx_only_days&year_month=${yearMonth}${appendOrganization}`).then((response: any) => {
+      if (response.ok) {
+        response.json().then((res: any) => {
+          // For now, use the sample data but update the year to match selected month
+        
+          // Use the actual data instead of the API response for now
+          setSalesData(res)
+        });
+      }
+    })
+  }
+
+  const handleYearMonthChange = (yearMonth: string) => {
+    if (yearMonth !== currentYearMonth) {
+      setCurrentYearMonth(yearMonth)
+      fetchSalesData(yearMonth)
+    }
+  }
+
   function hrefFn(data: any) {
     console.log(data)
     return '/devices/' + data.id + '/details';
@@ -28,12 +65,26 @@ export default function LibraryManagementSystem() {
     return null;
   }
 
+  useEffect(() => {
+    if (user?.userStruct?.organization_id) {
+      fetchSalesData(currentYearMonth)
+    }
+  }, [user?.userStruct?.organization_id])
 
 
 
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <div className="mt-8">
+        <SalesHistoryChart
+          data={salesData}
+          year={currentYearMonth}
+          title="Daily Sales by Outlet"
+          subtitle="View daily sales amounts across all outlets"
+          onYearMonthChange={handleYearMonthChange}
+        />
+      </div>
       <Tabs defaultValue="sales" className="space-y-4">
         <TabsList>
           <TabsTrigger value="sales">Sales</TabsTrigger>
@@ -101,6 +152,8 @@ export default function LibraryManagementSystem() {
                   }
                 ]}
               />}
+
+
 
             </CardContent>
           </Card>

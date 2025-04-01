@@ -1,0 +1,1 @@
+../../nxt_helpers/components/SidebarV2.tsx

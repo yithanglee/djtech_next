@@ -1,0 +1,32 @@
+ln -s ../nxt_helpers/lib lib
+ln -s ../nxt_helpers/hooks/ hooks
+ln -s ../nxt_helpers/context/ context
+
+ln -s ../../nxt_helpers/components/charts/ charts
+ln -s ../../nxt_helpers/components/data/ data
+ln -s ../../nxt_helpers/components/gridCells.tsx gridCells.tsx
+ln -s ../../nxt_helpers/components/ProtectedRoute.tsx ProtectedRoute.tsx
+ln -s ../../nxt_helpers/components/Sidebar.tsx Sidebar.tsx
+ln -s ../../nxt_helpers/components/SidebarV2.tsx SidebarV2.tsx
+ln -s ../../nxt_helpers/components/RegisterServiceWorker.tsx RegisterServiceWorker.tsx
+
+
+ln -s ../../nxt_helpers/hooks/use-notifications.ts use-notifications.ts
+
+
+
+
+ln -s ../nxt_helpers/lib lib
+ln -s ../nxt_helpers/hooks/ hooks
+ln -s ../nxt_helpers/context/ context
+
+ln -s ../../nxt_helpers/components/charts/ charts
+ln -s ../../nxt_helpers/components/data/ data
+ln -s ../../nxt_helpers/components/gridCells.tsx gridCells.tsx
+ln -s ../../nxt_helpers/components/ProtectedRoute.tsx ProtectedRoute.tsx
+ln -s ../../nxt_helpers/components/Sidebar.tsx Sidebar.tsx
+ln -s ../../nxt_helpers/components/RegisterServiceWorker.tsx RegisterServiceWorker.tsx
+ln -s ../../nxt_helpers/components/FirebaseProvider.tsx FirebaseProvider.tsx
+
+
+ln -s ../../nxt_helpers/hooks/use-notifications.ts use-notifications.ts

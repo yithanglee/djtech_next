@@ -32,10 +32,10 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const socket = new Socket(`${PHX_WS_PROTOCOL}${wsUrl}/socket`)
     socket.connect()
 
-    const fetchColInputs = async () => {
-        const inputs = await genInputs(url, 'Device');
-        setColInputs(inputs);
-    };
+    // const fetchColInputs = async () => {
+    //     const inputs = await genInputs(url, 'Device');
+    //     setColInputs(inputs);
+    // };
 
     const fetchCurrentData = () => {
         fetch(`${url}/svt_api/webhook?scope=get_role_app_routes&id=${id}`).then((response: any) => {
@@ -52,7 +52,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     }
 
     useEffect(() => {
-        fetchColInputs();
+        // fetchColInputs();
         const storedData = localStorage.getItem('roleAppRoutesData');  // Replace 'modelData' with your key
         if (storedData) {
             setData(JSON.parse(storedData));  // Parse and set the data in state
@@ -71,10 +71,10 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
         })[0]
 
 
-        console.log(filteredResult)
+        console.log(filteredResult, 'filteredResult')
         if (filteredResult) {
             setFilteredData(filteredResult)
-            setTitle((filteredResult.outlet ? filteredResult.outlet.name : '') + ' Device');
+            setTitle((filteredResult.outlet ? filteredResult.outlet.name : '') + ' ');
             setSubtitle(filteredResult.name);
 
         }
