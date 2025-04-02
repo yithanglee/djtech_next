@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import DataTable from '@/components/data/table'
 import SalesHistoryChart from '@/components/charts/sales-history'
+import MonthlySalesChart from '@/components/charts/monthly-sales'
 
 interface SalesDataEntry {
   outlet: string
@@ -18,8 +19,30 @@ interface SalesDataEntry {
   [key: string]: any // For dynamic day_X properties
 }
 
+interface MonthlyData {
+  outlet: string | null
+  device: string
+  organization: string
+  amount: string
+  transactions: number
+  year: string
+  jan: string
+  feb: string
+  mar: string
+  apr: string
+  may: string
+  jun: string
+  jul: string
+  aug: string
+  sep: string
+  oct: string
+  nov: string
+  dec: string
+}
+
 export default function Dashboard() {
   const [salesData, setSalesData] = useState<SalesDataEntry[]>([])
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
   const [currentYearMonth, setCurrentYearMonth] = useState("2025-01")
   const { user, isLoading } = useAuth();
   console.log(user)
@@ -29,14 +52,21 @@ export default function Dashboard() {
 
   console.log('url', url)
 
+  const fetchMonthlyData = () => {
+    fetch(`${url}/svt_api/webhook?scope=current_month_outlet_trx_only_rp${user?.userStruct?.organization_id ? `&organization_id=${user?.userStruct?.organization_id}` : ''}`).then((response: any) => {
+      if (response.ok) {
+        response.json().then((res: any) => {
+          setMonthlyData(res)
+        });
+      }
+    })
+  }
+
   const fetchSalesData = (yearMonth: string) => {
     const appendOrganization = user?.userStruct?.organization_id ? `&organization_id=${user?.userStruct?.organization_id}` : ''
     fetch(`${url}/svt_api/webhook?scope=current_month_outlet_trx_only_days&year_month=${yearMonth}${appendOrganization}`).then((response: any) => {
       if (response.ok) {
         response.json().then((res: any) => {
-          // For now, use the sample data but update the year to match selected month
-        
-          // Use the actual data instead of the API response for now
           setSalesData(res)
         });
       }
@@ -68,6 +98,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (user?.userStruct?.organization_id) {
       fetchSalesData(currentYearMonth)
+      fetchMonthlyData()
     }
   }, [user?.userStruct?.organization_id])
 
@@ -76,13 +107,19 @@ export default function Dashboard() {
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
-      <div className="mt-8">
+      <div className="space-y-8">
         <SalesHistoryChart
           data={salesData}
           year={currentYearMonth}
           title="Daily Sales by Outlet"
           subtitle="View daily sales amounts across all outlets"
           onYearMonthChange={handleYearMonthChange}
+        />
+        <MonthlySalesChart
+          data={monthlyData}
+          year="2025"
+          title="Yearly Sales Overview"
+          subtitle="View monthly sales trends across all outlets"
         />
       </div>
       <Tabs defaultValue="sales" className="space-y-4">
