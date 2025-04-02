@@ -38,6 +38,7 @@ interface MonthlyData {
   oct: string
   nov: string
   dec: string
+  [key: string]: string | number | null // Add index signature to match MonthlySalesData
 }
 
 export default function Dashboard() {
