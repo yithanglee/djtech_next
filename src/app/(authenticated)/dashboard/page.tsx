@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import DataTable from '@/components/data/table'
 import SalesHistoryChart from '@/components/charts/sales-history'
 import MonthlySalesChart from '@/components/charts/monthly-sales'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface SalesDataEntry {
   outlet: string
@@ -45,6 +46,7 @@ export default function Dashboard() {
   const [salesData, setSalesData] = useState<SalesDataEntry[]>([])
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
   const [currentYearMonth, setCurrentYearMonth] = useState("2025-01")
+  const [selectedYear, setSelectedYear] = useState("2025")
   const { user, isLoading } = useAuth();
   console.log(user)
   const { toast } = useToast()
@@ -53,8 +55,9 @@ export default function Dashboard() {
 
   console.log('url', url)
 
-  const fetchMonthlyData = () => {
-    fetch(`${url}/svt_api/webhook?scope=current_month_outlet_trx_only_rp${user?.userStruct?.organization_id ? `&organization_id=${user?.userStruct?.organization_id}` : ''}`).then((response: any) => {
+  const fetchMonthlyData = (year: string) => {
+    const appendOrganization = user?.userStruct?.organization_id ? `&organization_id=${user?.userStruct?.organization_id}` : ''
+    fetch(`${url}/svt_api/webhook?scope=current_month_outlet_trx_only_rp&year=${year}${appendOrganization}`).then((response: any) => {
       if (response.ok) {
         response.json().then((res: any) => {
           setMonthlyData(res)
@@ -81,6 +84,11 @@ export default function Dashboard() {
     }
   }
 
+  const handleYearChange = (year: string) => {
+    setSelectedYear(year)
+    fetchMonthlyData(year)
+  }
+
   function hrefFn(data: any) {
     console.log(data)
     return '/devices/' + data.id + '/details';
@@ -97,10 +105,10 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    if (user?.userStruct?.organization_id) {
+    
       fetchSalesData(currentYearMonth)
-      fetchMonthlyData()
-    }
+      fetchMonthlyData(selectedYear)
+    
   }, [user?.userStruct?.organization_id])
 
 
@@ -116,9 +124,26 @@ export default function Dashboard() {
           subtitle="View daily sales amounts across all outlets"
           onYearMonthChange={handleYearMonthChange}
         />
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold">Yearly Sales Overview</h2>
+            <p className="text-muted-foreground">View monthly sales trends across all outlets</p>
+          </div>
+          <Select value={selectedYear} onValueChange={handleYearChange}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select year" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="2023">2023</SelectItem>
+              <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2025">2025</SelectItem>
+              <SelectItem value="2026">2026</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <MonthlySalesChart
           data={monthlyData}
-          year="2025"
+          year={selectedYear}
           title="Yearly Sales Overview"
           subtitle="View monthly sales trends across all outlets"
         />
