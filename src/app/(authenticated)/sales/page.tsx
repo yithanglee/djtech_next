@@ -1,13 +1,16 @@
+'use client'
 import DataTable from "@/components/data/table"
-
+import { useAuth } from "@/lib/auth";
 export default function SellersPage() {
-
+  const { user, isLoading } = useAuth();
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold tracking-tight">Sales</h2>
       </div>
       <DataTable canDelete={true}
+       appendQueries={{ organization_id: user?.userStruct?.organization_id }}
+      
         showNew={true}
         model={'Sale'} 
         preloads={['outlet', 'device']}
