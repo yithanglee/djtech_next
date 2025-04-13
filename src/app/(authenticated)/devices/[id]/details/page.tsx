@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import Script from "next/dist/client/script";
 import Image from 'next/image';
 import { Socket, Channel } from "phoenix";
+import { useAuth } from "@/lib/auth";
 declare global {
     interface Window {
         JSC: any
@@ -26,6 +27,7 @@ interface DevicePayload {
 }
 
 export default function DetailsPage({ params }: { params: { id: string } }) {
+    const { user, isLoading: isAuthLoading } = useAuth();
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const id = params.id
@@ -170,15 +172,12 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
         const formData = new FormData(form)
 
-
         const formObject: Record<string, any> = {};
 
         formData.append(
             'item_name',
             `Send ` + formData.get('value') + ` reps (shorter ` + formData.get('delay') + `)`
         );
-
-
 
         formData.forEach((value, key) => {
             // Handle multiple values (like checkboxes)
@@ -192,8 +191,6 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
         });
 
         formObject["delay"] = Number(formObject["delay"])
-
-
 
         postData({
             endpoint: `${url}/svt_api/webhook`,
@@ -324,10 +321,10 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                             { label: 'label', alt_class: 'w-full mx-4 my-2 lg:w-2/3' },
                                                 'reading_pin',
                                                 'default_io_pin',
+                                            ...(user?.userStruct?.is_admin ? [
                                                 'default_delay',
                                                 'format',
-
-
+                                            ] : []),
                                             { label: 'record_wifi_time', boolean: true },
                                             { label: 'is_round_down', boolean: true },
                                             { label: 'keep_pending_task', boolean: true },
@@ -360,17 +357,28 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         <Input type="hidden" name={"name"} value={filteredData.name}></Input>
                                         <Input type="hidden" name={"scope"} value={'start_pwm'}></Input>
                                         <Input type="hidden" name={"action"} value={'start'}></Input>
-                                        <div className="grid w-full max-w-sm items-center gap-1.5">
-                                            <Label >Delay</Label>
-                                            <Input type="number" step="0.1" name={"delay"}></Input>
-                                        </div>
+                                        {user?.userStruct?.is_admin && (
+                                            <>
+                                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                    <Label >Delay</Label>
+                                                    <Input type="number" step="0.1" name={"delay"}></Input>
+                                                </div>
+                                                <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                    <Label >Format</Label>
+                                                    <Input type="text" name={"format"} ></Input>
+                                                </div>
+                                            </>
+                                        )}
+                                        {!user?.userStruct?.is_admin && (
+                                            <>
+                                                <Input type="number" className="hidden" value={0.1} step="0.1" name={"delay"}></Input>
+
+
+                                            </>
+                                        )}
                                         <div className="grid w-full max-w-sm items-center gap-1.5">
                                             <Label >Reps</Label>
                                             <Input type="number" name={"value"}></Input>
-                                        </div>
-                                        <div className="grid w-full max-w-sm items-center gap-1.5">
-                                            <Label >Format</Label>
-                                            <Input type="text" name={"format"} ></Input>
                                         </div>
                                         <Button>Submit</Button>
                                     </form>
@@ -406,8 +414,10 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight mb-3">Job History</h2>
-                    <DataTable canDelete={true}
-                        showNew={true}
+                    <DataTable
+                        // canDelete={user?.userStruct?.is_admin}
+                        canDelete={true}
+                        showNew={user?.userStruct?.is_admin}
                         appendQueries={{ device_id: id }}
                         model={'DeviceLog'}
                         search_queries={['a.uuid']}
@@ -428,46 +438,62 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         }
                         columns={[
                             { label: 'ID', data: 'id' },
-                            { label: 'Remarks', data: 'remarks', subtitle: { label: 'ref', data: 'uuid' } },
-                            // { label: 'Ref', data: 'uuid' },
+                            {
+                                label: 'ID', data: 'remarks', formatMessage: true, replaceFn: (v: string) => {
+                                    const match = v.match(/sales id:(\d+)/);
+                                    const pinMatch = v.match(/on pin (\d+)/);
+                                    const pwmMatch = pinMatch ? v.match(/Send (\d+) reps/) : null;
+                                    console.log('match', match)
+                                    console.log('pwmMatch', pwmMatch)
+                                    console.log('pinMatch', pinMatch)
+                                    if (match) return `sales id: ${match[1]}`;
+                                    if (pwmMatch && pinMatch) {
+                                        return `manual start Send ${pwmMatch[1]} reps on pin ${pinMatch[1]}`;
+                                    }
+                                    return v;
+                                }
+                            },
+                            ...(user?.userStruct?.role?.name == 'admin'
+                                ? [{ label: 'Remarks', data: 'remarks', subtitle: { label: 'ref', data: 'uuid' } }]
+                                : [{ label: 'Ref', data: 'uuid' }]
+                            ),
                             { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
                         ]}
-
-
                     />
                 </div>
-                <div>
-                    <h2 className="text-2xl font-bold tracking-tight mb-3">Pin Readings</h2>
-                    <DataTable canDelete={true}
-                        showNew={true}
-                        appendQueries={{ device_id: id }}
-                        model={'IoReading'}
-                        search_queries={['a.log']}
-                        customCols={
-                            [
-                                {
-                                    title: 'General',
-                                    list: [
-                                        'id',
-                                    ]
-                                },
-                                {
-                                    title: 'Detail',
-                                    list: [
-                                    ]
-                                },
-                            ]
-                        }
-                        columns={[
-                            { label: 'ID', data: 'id' },
-                            { label: 'Remarks', data: 'log' },
-                            { label: 'Final Data', data: 'final_data' },
-                            { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
-                        ]}
 
-
-                    />
-                </div>
+                {user?.userStruct?.is_admin && (
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight mb-3">Pin Readings</h2>
+                        <DataTable canDelete={true}
+                            showNew={true}
+                            appendQueries={{ device_id: id }}
+                            model={'IoReading'}
+                            search_queries={['a.log']}
+                            customCols={
+                                [
+                                    {
+                                        title: 'General',
+                                        list: [
+                                            'id',
+                                        ]
+                                    },
+                                    {
+                                        title: 'Detail',
+                                        list: [
+                                        ]
+                                    },
+                                ]
+                            }
+                            columns={[
+                                { label: 'ID', data: 'id' },
+                                { label: 'Remarks', data: 'log' },
+                                { label: 'Final Data', data: 'final_data' },
+                                { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                            ]}
+                        />
+                    </div>
+                )}
 
             </div>
         </>

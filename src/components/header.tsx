@@ -6,7 +6,7 @@ export function Header() {
     <header className="py-4 px-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-primary">
-          IoTConnect
+          DJTECH
         </Link>
         <nav className="hidden md:flex space-x-6">
           <Link href="#features" className="text-muted-foreground hover:text-primary">
