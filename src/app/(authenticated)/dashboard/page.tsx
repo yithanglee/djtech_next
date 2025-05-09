@@ -235,7 +235,7 @@ export default function Dashboard() {
                 model={'Device'}
                 preloads={['outlet', 'executor_board', 'organization']}
                 buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
-                { name: 'Regen QR', onclickFn: clickFn },
+                { name: 'Regen QR', onclickFn: clickFn,  showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
                 { name: 'Control', onclickFn: clickFn, href: hrefFn }
 
                 ]}
