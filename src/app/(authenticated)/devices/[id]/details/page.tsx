@@ -28,6 +28,7 @@ interface DevicePayload {
 
 export default function DetailsPage({ params }: { params: { id: string } }) {
     const { user, isLoading: isAuthLoading } = useAuth();
+  
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const id = params.id
@@ -321,7 +322,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                             { label: 'label', alt_class: 'w-full mx-4 my-2 lg:w-2/3' },
                                                 'reading_pin',
                                                 'default_io_pin',
-                                            ...(user?.userStruct?.is_admin ? [
+                                            ...(user?.userStruct?.role?.name == 'admin' ? [
                                                 'default_delay',
                                                 'format',
                                             ] : []),
@@ -357,7 +358,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         <Input type="hidden" name={"name"} value={filteredData.name}></Input>
                                         <Input type="hidden" name={"scope"} value={'start_pwm'}></Input>
                                         <Input type="hidden" name={"action"} value={'start'}></Input>
-                                        {user?.userStruct?.is_admin && (
+                                        {user?.userStruct?.role?.name == 'admin' && (
                                             <>
                                                 <div className="grid w-full max-w-sm items-center gap-1.5">
                                                     <Label >Delay</Label>
@@ -369,7 +370,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                                 </div>
                                             </>
                                         )}
-                                        {!user?.userStruct?.is_admin && (
+                                        {!user?.userStruct?.role?.name == 'admin' && (
                                             <>
                                                 <Input type="number" className="hidden" value={0.1} step="0.1" name={"delay"}></Input>
 
@@ -415,9 +416,9 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight mb-3">Job History</h2>
                     <DataTable
-                        // canDelete={user?.userStruct?.is_admin}
+                        // canDelete={user?.userStruct?.role?.name == 'admin'}
                         canDelete={true}
-                        showNew={user?.userStruct?.is_admin}
+                        showNew={user?.userStruct?.role?.name == 'admin'}
                         appendQueries={{ device_id: id }}
                         model={'DeviceLog'}
                         search_queries={['a.uuid']}
@@ -462,7 +463,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                     />
                 </div>
 
-                {user?.userStruct?.is_admin && (
+                {user?.userStruct?.role?.name == 'admin' && (
                     <div>
                         <h2 className="text-2xl font-bold tracking-tight mb-3">Pin Readings</h2>
                         <DataTable canDelete={true}
