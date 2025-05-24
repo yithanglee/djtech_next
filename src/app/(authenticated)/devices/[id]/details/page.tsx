@@ -370,7 +370,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                                 </div>
                                             </>
                                         )}
-                                        {!user?.userStruct?.role?.name == 'admin' && (
+                                        {user?.userStruct?.role?.name != 'admin' && (
                                             <>
                                                 <Input type="number" className="hidden" value={0.1} step="0.1" name={"delay"}></Input>
 
