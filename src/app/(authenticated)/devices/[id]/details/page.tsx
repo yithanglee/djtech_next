@@ -12,7 +12,6 @@ import DynamicForm from "@/components/data/dynaform";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import Script from "next/dist/client/script";
-import Image from 'next/image';
 import { Socket, Channel } from "phoenix";
 import { useAuth } from "@/lib/auth";
 declare global {
@@ -393,8 +392,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         {filteredData.name != "0" && filteredData.qr_code_data && <div className="col-span-12 lg:col-span-3 mt-8 lg:mt-0 lg:ml-2 ">
                             <div className="w-full flex flex-col items-center justify-center">
                                 <h2 className="text-2xl font-bold tracking-tight mb-3">DuitNow QR</h2>
-                                <Image
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=ec2f66&data=${filteredData.qr_code_data}`}
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=ec2f66&data=${encodeURIComponent(filteredData.qr_code_data)}`}
                                     alt="QR Code"
                                     width={150}
                                     height={150}
