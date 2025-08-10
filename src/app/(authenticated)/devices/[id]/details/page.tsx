@@ -524,7 +524,39 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         </div>}
                     </div>
                 </div>
-
+                {user?.userStruct?.role?.name == 'admin' && (
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight mb-3">Firmwares</h2>
+                        <DataTable canDelete={true}
+                            showNew={true}
+                            // appendQueries={{ device_id: id }}
+                            buttons={[{ name: 'Update Firmware', onclickFn: clickFn },
+                            ]}
+                            model={'Firmware'}
+                            search_queries={['a.version']}
+                            customCols={
+                                [
+                                    {
+                                        title: 'General',
+                                        list: [
+                                            'id',
+                                        ]
+                                    },
+                                    {
+                                        title: 'Detail',
+                                        list: [
+                                        ]
+                                    },
+                                ]
+                            }
+                            columns={[
+                                { label: 'ID', data: 'id' },
+                                { label: 'Version', data: 'version' },
+                                { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                            ]}
+                        />
+                    </div>
+                )}
                 <div>
                     <h2 className="text-2xl font-bold tracking-tight mb-3">Job History</h2>
                     <DataTable
@@ -607,39 +639,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                         />
                     </div>
                 )}
-                {user?.userStruct?.role?.name == 'admin' && (
-                    <div>
-                        <h2 className="text-2xl font-bold tracking-tight mb-3">Firmwares</h2>
-                        <DataTable canDelete={true}
-                            showNew={true}
-                            // appendQueries={{ device_id: id }}
-                            buttons={[{ name: 'Update Firmware', onclickFn: clickFn },
-                            ]}
-                            model={'Firmware'}
-                            search_queries={['a.version']}
-                            customCols={
-                                [
-                                    {
-                                        title: 'General',
-                                        list: [
-                                            'id',
-                                        ]
-                                    },
-                                    {
-                                        title: 'Detail',
-                                        list: [
-                                        ]
-                                    },
-                                ]
-                            }
-                            columns={[
-                                { label: 'ID', data: 'id' },
-                                { label: 'Version', data: 'version' },
-                                { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
-                            ]}
-                        />
-                    </div>
-                )}
+
 
             </div>
         </>
