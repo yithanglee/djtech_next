@@ -24,8 +24,8 @@ export default function SellersPage() {
                 'name',
           
                 'version',
-                'email', 'phone',
                 { label: 'url', upload: true },
+                { label: 'metadata', editor2: true },
 
 
 
