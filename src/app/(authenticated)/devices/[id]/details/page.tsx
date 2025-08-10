@@ -25,6 +25,15 @@ interface DevicePayload {
     timestamp: string;
 }
 
+interface OtaStatusPayload {
+    status: string;
+    progress: number;
+    current_version?: string;
+    target_version?: string;
+    update_available?: boolean;
+    timestamp?: number;
+}
+
 export default function DetailsPage({ params }: { params: { id: string } }) {
     const { user, isLoading: isAuthLoading } = useAuth();
 
@@ -41,7 +50,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const socketRef = useRef<Socket | null>(null)
     const channelRef = useRef<Channel | null>(null)
     const offlineTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
+    const [otaStatus, setOtaStatus] = useState<OtaStatusPayload | null>(null)
+    const [otaLastUpdatedAt, setOtaLastUpdatedAt] = useState<number | null>(null)
 
 
     // Function to reset the offline timeout
@@ -191,12 +201,26 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                 resetOfflineTimeout() // Start/reset the 4-second timeout
             })
 
+            channel.on('ota_status', (payload: OtaStatusPayload) => {
+                console.info('OTA status update:', payload)
+                setOtaStatus(payload)
+                setOtaLastUpdatedAt(Date.now())
+            })
+
             // Cleanup function
             return () => {
                 if (offlineTimeoutRef.current) {
                     clearTimeout(offlineTimeoutRef.current)
                 }
                 if (channel) {
+                    // Best-effort remove listeners before leaving
+                    try {
+                        const anyChannel: any = channel
+                        if (anyChannel.off) {
+                            anyChannel.off('ota_status')
+                            anyChannel.off('i_am_online')
+                        }
+                    } catch {}
                     channel.leave()
                 }
                 if (socketRef.current) {
@@ -429,6 +453,46 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
                                 </CardContent>
                             </Card>
+
+                            {otaStatus && (
+                                <Card className="mt-4">
+                                    <CardHeader>
+                                        <div>OTA Status</div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="text-sm text-gray-600 mb-2">{otaStatus.status}</div>
+                                        <div className="w-full bg-gray-200 rounded h-4 overflow-hidden">
+                                            <div
+                                                className="bg-blue-600 h-4"
+                                                style={{ width: `${Math.max(0, Math.min(100, otaStatus.progress ?? 0))}%` }}
+                                            />
+                                        </div>
+                                        <div className="flex justify-between text-xs text-gray-600 mt-1">
+                                            <span>{Math.max(0, Math.min(100, otaStatus.progress ?? 0))}%</span>
+                                            {otaLastUpdatedAt && (
+                                                <span>Updated {new Date(otaLastUpdatedAt).toLocaleTimeString()}</span>
+                                            )}
+                                        </div>
+                                        <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                                            {otaStatus.current_version && (
+                                                <div>
+                                                    <span className="text-gray-500">Current:</span> {otaStatus.current_version}
+                                                </div>
+                                            )}
+                                            {otaStatus.target_version && (
+                                                <div>
+                                                    <span className="text-gray-500">Target:</span> {otaStatus.target_version}
+                                                </div>
+                                            )}
+                                            {typeof otaStatus.update_available === 'boolean' && (
+                                                <div className="col-span-2">
+                                                    <span className="text-gray-500">Update Available:</span> {otaStatus.update_available ? 'Yes' : 'No'}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
 
                         </div>
 
