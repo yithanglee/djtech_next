@@ -85,8 +85,12 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
         console.log(name)
         console.log(data)
         const url = PHX_HTTP_PROTOCOL + PHX_ENDPOINT;
+
         const currentDevice = localStorage.getItem('devicesData')
         const currentDeviceData = JSON.parse(currentDevice || '[]')[0]
+
+
+
         const mapFunction: any = {
             'Update Firmware': () => {
                 console.log("Update Firmware")
@@ -116,7 +120,14 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
         const storedData = localStorage.getItem('devicesData');  // Replace 'modelData' with your key
         if (storedData) {
-            setData(JSON.parse(storedData));  // Parse and set the data in state
+            let d = JSON.parse(storedData);
+            console.log("stored",d);
+
+            if (d.id == id) {
+                setData(d);  // Parse and set the data in state
+            } else {
+                fetchCurrentData()
+            }
 
         } else {
             fetchCurrentData()
