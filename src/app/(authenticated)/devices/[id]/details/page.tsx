@@ -404,7 +404,7 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         )}
                                         {user?.userStruct?.role?.name != 'admin' && (
                                             <>
-                                                <Input type="number" className="hidden" value={0.1} step="0.1" name={"delay"}></Input>
+                                                <Input type="number" className="hidden" value={filteredData.default_delay} step="0.1" name={"delay"}></Input>
 
 
                                             </>
