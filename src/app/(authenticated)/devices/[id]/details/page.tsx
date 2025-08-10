@@ -454,7 +454,13 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                 </CardContent>
                             </Card>
 
-                            {otaStatus && (
+
+                        </div>
+
+
+
+                        {otaStatus && (
+                            <div className="col-span-12 lg:col-span-2 mt-8 lg:mt-0">
                                 <Card className="mt-4">
                                     <CardHeader>
                                         <div>OTA Status</div>
@@ -492,9 +498,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                         </div>
                                     </CardContent>
                                 </Card>
+                            </div>
                             )}
-
-                        </div>
 
 
                         {filteredData.name != "0" && filteredData.qr_code_data && <div className="col-span-12 lg:col-span-3 mt-8 lg:mt-0 lg:ml-2 ">
