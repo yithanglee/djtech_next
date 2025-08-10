@@ -54,6 +54,7 @@ export default function AuthenticatedLayout({
       items: [
         { name: "Settings", href: "/settings", icon: Settings },
         { name: "Reading Conversions", href: "/reading_conversion", icon: FileScan },
+        { name: "Firmwares", href: "/firmwares", icon: Settings },
         { name: "Messaging Devices", href: "/messaging_devices", icon: Settings },
         { name: "Users", href: "/users", icon: Users },
         { name: "Roles", href: "/roles", icon: ShieldCheck },

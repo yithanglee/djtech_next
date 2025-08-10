@@ -27,7 +27,7 @@ interface DevicePayload {
 
 export default function DetailsPage({ params }: { params: { id: string } }) {
     const { user, isLoading: isAuthLoading } = useAuth();
-  
+
     const [data, setData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const id = params.id
@@ -41,6 +41,8 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const socketRef = useRef<Socket | null>(null)
     const channelRef = useRef<Channel | null>(null)
     const offlineTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+
 
     // Function to reset the offline timeout
     const resetOfflineTimeout = () => {
@@ -76,6 +78,37 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
             }
 
         })
+    }
+
+
+    function clickFn(data: any, name: string) {
+        console.log(name)
+        console.log(data)
+        const url = PHX_HTTP_PROTOCOL + PHX_ENDPOINT;
+        const currentDevice = localStorage.getItem('devicesData')
+        const currentDeviceData = JSON.parse(currentDevice || '[]')[0]
+        const mapFunction: any = {
+            'Update Firmware': () => {
+                console.log("Update Firmware")
+                postData({
+
+                    data: { id: data.id, name: currentDeviceData.name, firmware_version: data.version, scope: 'ota_update' },
+                    endpoint: `${url}/svt_api/webhook?scope=ota_update`,
+                    successCallback: () => {
+                        toast({
+                            title: `${name} Completed`,
+                            description: `Your action on ${data.name} was successful!`,
+                        })
+                    }
+
+                })
+
+            },
+
+        }
+
+        mapFunction[name]()
+        return null;
     }
 
     useEffect(() => {
@@ -489,6 +522,39 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
                                 { label: 'ID', data: 'id' },
                                 { label: 'Remarks', data: 'log' },
                                 { label: 'Final Data', data: 'final_data' },
+                                { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                            ]}
+                        />
+                    </div>
+                )}
+                {user?.userStruct?.role?.name == 'admin' && (
+                    <div>
+                        <h2 className="text-2xl font-bold tracking-tight mb-3">Firmwares</h2>
+                        <DataTable canDelete={true}
+                            showNew={true}
+                            // appendQueries={{ device_id: id }}
+                            buttons={[{ name: 'Update Firmware', onclickFn: clickFn },
+                            ]}
+                            model={'Firmware'}
+                            search_queries={['a.version']}
+                            customCols={
+                                [
+                                    {
+                                        title: 'General',
+                                        list: [
+                                            'id',
+                                        ]
+                                    },
+                                    {
+                                        title: 'Detail',
+                                        list: [
+                                        ]
+                                    },
+                                ]
+                            }
+                            columns={[
+                                { label: 'ID', data: 'id' },
+                                { label: 'Version', data: 'version' },
                                 { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
                             ]}
                         />

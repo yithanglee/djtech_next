@@ -32,6 +32,19 @@ export default function DevicesPage() {
     const mapFunction: any = {
       'Clear Logs': () => {
         console.log("Clear Logs")
+        postData({
+
+          data: { id: data.id, device_id: data.id, scope: 'delete_all_device_log' },
+          endpoint: `${url}/svt_api/webhook?scope=delete_all_device_log`,
+          successCallback: () => {
+            toast({
+              title: `${name} Completed`,
+              description: `Your action on ${data.name} was successful!`,
+            })
+          }
+
+        })
+
       },
       'Website': () => {
         console.log("Website")
@@ -157,8 +170,8 @@ export default function DevicesPage() {
             ]
           }
           columns={[
-
-            { label: 'Label', data: 'label', subtitle: { label: 'name', data: 'name' }, altClass: 'font-bold capitalize' },
+            { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
+            { label: 'Device', data: 'name' },
             { label: 'Timestamp', data: 'inserted_at', offset: 8, formatDateTime: true },
             {
               label: 'In service?', data: 'is_active', color: [
