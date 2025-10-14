@@ -172,6 +172,7 @@ export default function DevicesPage() {
           columns={[
             { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
             { label: 'Device', data: 'name' },
+            { label: 'Firmware', data: 'current_firmware_version' },
             { label: 'Timestamp', data: 'inserted_at', offset: 8, formatDateTime: true },
             {
               label: 'In service?', data: 'is_active', color: [
