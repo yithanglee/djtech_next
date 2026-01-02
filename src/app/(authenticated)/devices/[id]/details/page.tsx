@@ -1,5 +1,6 @@
 'use client';
 import DataTable from "@/components/data/table"
+import SimpleTable from "@/components/data/simpleTable"
 import { useEffect, useRef, useState } from "react";
 import { BreadcrumbHelper } from "@/components/data/breadcrumbHelper";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import Script from "next/dist/client/script";
 import { Socket, Channel } from "phoenix";
 import { useAuth } from "@/lib/auth";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 declare global {
     interface Window {
         JSC: any
@@ -52,6 +55,22 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
     const offlineTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     const [otaStatus, setOtaStatus] = useState<OtaStatusPayload | null>(null)
     const [otaLastUpdatedAt, setOtaLastUpdatedAt] = useState<number | null>(null)
+    const [wifiGroupedRows, setWifiGroupedRows] = useState<any[]>([])
+    const [wifiGroupedLoading, setWifiGroupedLoading] = useState<boolean>(false)
+    const [wifiPage, setWifiPage] = useState<number>(1)
+    const [wifiTotalPages, setWifiTotalPages] = useState<number>(1)
+    const wifiPerPage = 24
+    const [wifiDate, setWifiDate] = useState<string>(() => {
+        // YYYY-MM-DD
+        return new Date().toISOString().slice(0, 10)
+    })
+
+    const [wifiWeeklyRows, setWifiWeeklyRows] = useState<any[]>([])
+    const [wifiWeeklyLoading, setWifiWeeklyLoading] = useState<boolean>(false)
+    const [wifiMonth, setWifiMonth] = useState<string>(() => {
+        // YYYY-MM
+        return new Date().toISOString().slice(0, 7)
+    })
 
 
     // Function to reset the offline timeout
@@ -345,6 +364,39 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
         isJSChartingLoaded
     ])
 
+    useEffect(() => {
+        // grouped wifi logs table (minute bucket + count)
+        setWifiGroupedLoading(true)
+        const start = wifiPerPage * (wifiPage - 1)
+        fetch(`${url}/svt_api/webhook?scope=datatable_device_wifi_logs&id=${id}&date=${wifiDate}&length=${wifiPerPage}&start=${start}&draw=${wifiPage}`, {
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then((r) => r.json())
+            .then((res) => {
+                const rows = Array.isArray(res?.data) ? res.data : []
+                setWifiGroupedRows(rows)
+                const total = typeof res?.recordsFiltered === 'number' ? res.recordsFiltered : (typeof res?.recordsTotal === 'number' ? res.recordsTotal : 0)
+                setWifiTotalPages(Math.max(1, Math.ceil(total / wifiPerPage)))
+            })
+            .catch(() => setWifiGroupedRows([]))
+            .finally(() => setWifiGroupedLoading(false))
+    }, [id, wifiDate, wifiPage])
+
+    useEffect(() => {
+        // weekly grouped wifi logs (within selected month)
+        setWifiWeeklyLoading(true)
+        fetch(`${url}/svt_api/webhook?scope=datatable_device_wifi_logs_weekly_month&id=${id}&month=${wifiMonth}&length=10&start=0&draw=1`, {
+            headers: { 'Content-Type': 'application/json' }
+        })
+            .then((r) => r.json())
+            .then((res) => {
+                const rows = Array.isArray(res?.data) ? res.data : []
+                setWifiWeeklyRows(rows)
+            })
+            .catch(() => setWifiWeeklyRows([]))
+            .finally(() => setWifiWeeklyLoading(false))
+    }, [id, wifiMonth])
+
 
 
 
@@ -370,6 +422,136 @@ export default function DetailsPage({ params }: { params: { id: string } }) {
 
                 <div className="container">
                     <div ref={chartRef} style={{ width: '100%', height: '180px' }}></div>
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight mb-3">Device WiFi Logs</h2>
+                    <Tabs defaultValue="hourly" className="w-full">
+                        <TabsList>
+                            <TabsTrigger value="hourly">Hourly</TabsTrigger>
+                            <TabsTrigger value="weekly">Weekly</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="hourly">
+                            <div className="flex flex-col gap-3 mb-3">
+                                <div className="flex flex-wrap items-end gap-2">
+                                    <div className="grid gap-1.5">
+                                        <Label>Day</Label>
+                                        <Input
+                                            type="date"
+                                            value={wifiDate}
+                                            onChange={(e) => {
+                                                setWifiPage(1)
+                                                setWifiDate(e.target.value)
+                                            }}
+                                        />
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            const d = new Date(wifiDate + 'T00:00:00Z')
+                                            d.setUTCDate(d.getUTCDate() - 1)
+                                            setWifiPage(1)
+                                            setWifiDate(d.toISOString().slice(0, 10))
+                                        }}
+                                    >
+                                        Prev Day
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            const d = new Date(wifiDate + 'T00:00:00Z')
+                                            d.setUTCDate(d.getUTCDate() + 1)
+                                            setWifiPage(1)
+                                            setWifiDate(d.toISOString().slice(0, 10))
+                                        }}
+                                    >
+                                        Next Day
+                                    </Button>
+                                </div>
+                            </div>
+                            <SimpleTable
+                                isLoading={wifiGroupedLoading}
+                                data={wifiGroupedRows}
+                                columns={[
+                                    { label: 'Hour', data: 'hour', formatDateTime: true, offset: 8 },
+                                    { label: 'Count', data: 'call_count' }
+                                ]}
+                            />
+                            <div className="mt-3 flex justify-end">
+                                <Pagination>
+                                    <PaginationContent>
+                                        <PaginationItem>
+                                            <PaginationPrevious
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    setWifiPage((p) => Math.max(1, p - 1))
+                                                }}
+                                            />
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink href="#" onClick={(e) => e.preventDefault()} isActive>
+                                                {wifiPage} / {wifiTotalPages}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationNext
+                                                href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    setWifiPage((p) => Math.min(wifiTotalPages, p + 1))
+                                                }}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="weekly">
+                            <div className="flex flex-col gap-3 mb-3">
+                                <div className="flex flex-wrap items-end gap-2">
+                                    <div className="grid gap-1.5">
+                                        <Label>Month</Label>
+                                        <Input
+                                            type="month"
+                                            value={wifiMonth}
+                                            onChange={(e) => setWifiMonth(e.target.value)}
+                                        />
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            const d = new Date(wifiMonth + '-01T00:00:00Z')
+                                            d.setUTCMonth(d.getUTCMonth() - 1)
+                                            setWifiMonth(d.toISOString().slice(0, 7))
+                                        }}
+                                    >
+                                        Prev Month
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            const d = new Date(wifiMonth + '-01T00:00:00Z')
+                                            d.setUTCMonth(d.getUTCMonth() + 1)
+                                            setWifiMonth(d.toISOString().slice(0, 7))
+                                        }}
+                                    >
+                                        Next Month
+                                    </Button>
+                                </div>
+                            </div>
+                            <SimpleTable
+                                isLoading={wifiWeeklyLoading}
+                                data={wifiWeeklyRows}
+                                columns={[
+                                    { label: 'Week Start', data: 'week_start', formatDateTime: true, offset: 8 },
+                                    { label: 'Week End', data: 'week_end', formatDateTime: true, offset: 8 },
+                                    { label: 'Count', data: 'call_count' }
+                                ]}
+                            />
+                        </TabsContent>
+                    </Tabs>
                 </div>
                 <div>
                     <div className="grid grid-cols-8 gap-4">
