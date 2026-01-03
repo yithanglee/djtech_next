@@ -45,8 +45,8 @@ interface MonthlyData {
 export default function Dashboard() {
   const [salesData, setSalesData] = useState<SalesDataEntry[]>([])
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
-  const [currentYearMonth, setCurrentYearMonth] = useState("2025-01")
-  const [selectedYear, setSelectedYear] = useState("2025")
+  const [currentYearMonth, setCurrentYearMonth] = useState("2026-01")
+  const [selectedYear, setSelectedYear] = useState("2026")
   const { user, isLoading } = useAuth();
   console.log(user)
   const { toast } = useToast()
