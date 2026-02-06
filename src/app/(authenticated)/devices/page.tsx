@@ -20,7 +20,7 @@ export default function DevicesPage() {
     console.log(data)
     const subdomain = data.outlet != null ? data.outlet?.subdomain : "";
     // return 'http://localhost:5126?d=' + data.name + '&location=' + subdomain;
-	
+
     return 'https://iot.djtech4u.com?d=' + data.name + '&location=' + subdomain;
   }
 
@@ -93,16 +93,16 @@ export default function DevicesPage() {
         </div>
 
 
-        <DataTable 
+        <DataTable
           canDelete={user?.userStruct?.role.name == 'admin' ? true : false}
           appendQueries={{ organization_id: user?.userStruct?.organization_id }}
           showNew={true}
           model={'Device'}
           preloads={['outlet', 'executor_board', 'organization']}
           buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
-            { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+          { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
           // { name: 'Website', onclickFn: clickFn, href: hrefFn },
-          { name: 'Control', onclickFn: clickFn  }]}
+          { name: 'Control', onclickFn: clickFn }]}
           search_queries={['a.name']}
           customCols={
             [
@@ -141,6 +141,7 @@ export default function DevicesPage() {
                   { label: 'is_active', boolean: true },
                   { label: 'record_wifi_time', boolean: true },
                   { label: 'is_cloridge', boolean: true },
+                  { label: 'is_round_down', alt_class: 'hidden' }
 
 
                 ]
@@ -187,8 +188,8 @@ export default function DevicesPage() {
                 }
               ], altClass: 'mt-2'
             },
-            { label: 'Outlet', data: 'name', through: ['outlet'] , altClass: 'lg:mt-0 mt-2'},
-            { label: 'Organization', data: 'name', through: ['organization'] , altClass: ''},
+            { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
+            { label: 'Organization', data: 'name', through: ['organization'], altClass: '' },
           ]}
 
 
