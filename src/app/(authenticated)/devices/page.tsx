@@ -99,10 +99,11 @@ export default function DevicesPage() {
           showNew={true}
           model={'Device'}
           preloads={['outlet', 'executor_board', 'organization']}
-          buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
-          { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
-          // { name: 'Website', onclickFn: clickFn, href: hrefFn },
-          { name: 'Control', onclickFn: clickFn }]}
+          buttons={[
+            { name: 'Clear Logs', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+            { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+            // { name: 'Website', onclickFn: clickFn, href: hrefFn },
+            { name: 'Control', onclickFn: clickFn }]}
           search_queries={['a.name']}
           customCols={
             [
