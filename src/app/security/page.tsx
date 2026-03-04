@@ -42,7 +42,7 @@ export default function SecurityStatement() {
                     <h2 className="text-2xl font-semibold mb-4">4. Redirection Safety</h2>
                     <p>
                         During the FPX payment process, you will be redirected to your respective
-                        bank's secure payment portal. Please ensure you are on the official bank
+                        bank&apos;s secure payment portal. Please ensure you are on the official bank
                         URL before entering any credentials.
                     </p>
                 </section>

@@ -43,8 +43,8 @@ export default function SubscriptionPolicy() {
                     </p>
                     <ol className="list-decimal pl-6">
                         <li>Log in to your DJTECH account.</li>
-                        <li>Navigate to the 'Subscription' or 'Account Settings' section.</li>
-                        <li>Select 'Cancel Subscription' and follow the prompts.</li>
+                        <li>Navigate to the &apos;Subscription&apos; or &apos;Account Settings&apos; section.</li>
+                        <li>Select &apos;Cancel Subscription&apos; and follow the prompts.</li>
                     </ol>
                     <p className="mt-4">
                         Upon cancellation, your access will remain active until the end of the

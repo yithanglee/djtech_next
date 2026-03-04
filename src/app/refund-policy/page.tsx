@@ -28,7 +28,7 @@ export default function RefundPolicy() {
                     <ul className="list-disc pl-6">
                         <li>Duplicate payments made in error.</li>
                         <li>Technical failures on our part that prevent you from accessing the service for an extended period.</li>
-                        <li>Refund requests made within 7 days of the initial purchase, provided the service hasn't been significantly used.</li>
+                        <li>Refund requests made within 7 days of the initial purchase, provided the service hasn&apos;t been significantly used.</li>
                     </ul>
                 </section>
 
