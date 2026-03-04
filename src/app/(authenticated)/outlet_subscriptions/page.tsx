@@ -75,6 +75,7 @@ export default function OutletSubscriptionsPage() {
                         title: 'General',
                         list: [
                             { label: 'id', alt_class: 'hidden' },
+
                             {
                                 label: 'outlet_id',
                                 customCols: null,
@@ -84,6 +85,14 @@ export default function OutletSubscriptionsPage() {
                                 title_key: 'name'
                             },
                             { label: 'amount' },
+                            {
+                                label: 'subscription_id',
+                                customCols: null,
+                                selection: 'Subscription',
+                                search_queries: ['a.name'],
+                                newData: 'name',
+                                title_key: 'name'
+                            },
                             { label: 'start_date', date: true },
                             { label: 'end_date', date: true },
                             { label: 'ref_no' },
