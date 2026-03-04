@@ -46,6 +46,8 @@ export default function AuthenticatedLayout({
       items: [
         { name: "Devices", href: "/devices", icon: Smartphone },
         { name: "Outlets", href: "/outlets", icon: Store },
+        { name: "Subscriptions", href: "/subscriptions", icon: Tag },
+        { name: "Outlet Subscriptions", href: "/outlet_subscriptions", icon: FileClock },
         { name: "Sales", href: "/sales", icon: DollarSign },
       ]
     },
@@ -64,7 +66,7 @@ export default function AuthenticatedLayout({
     }
   ]
   let allowedRoutes = user?.userStruct?.role?.app_routes.map((v: any) => { return v.route })
-  allowedRoutes = ["/dashboard", "/devices", "/outlets", "/sales"];
+  allowedRoutes = ["/dashboard", "/devices", "/outlets", "/subscriptions", "/outlet_subscriptions", "/sales"];
 
   return (
     <FirebaseProvider>
@@ -97,11 +99,11 @@ export default function AuthenticatedLayout({
                 </div>
               </header>
               <main className=" p-4 sm:p-6 lg:p-8">
-           
 
 
-                  {children}
-               
+
+                {children}
+
               </main>
             </div>
           </SidebarProvider>

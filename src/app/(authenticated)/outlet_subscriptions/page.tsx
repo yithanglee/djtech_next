@@ -1,0 +1,120 @@
+'use client';
+import DataTable from "@/components/data/table"
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth";
+import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from "@/lib/constants";
+import ModelProvider from "@/lib/provider";
+import { postData } from "@/lib/svt_utils";
+import { useRouter } from "next/navigation";
+
+export default function OutletSubscriptionsPage() {
+    const { user, isLoading } = useAuth();
+    let { toast } = useToast()
+    const router = useRouter();
+    function clickFn(data: any, name: string) {
+        console.log(name)
+        console.log(data)
+        const serverUrl = PHX_HTTP_PROTOCOL + PHX_ENDPOINT;
+
+        const mapFunction: any = {
+
+            'Pay': () => {
+
+                // postData({
+
+                //     data: { id: data.id, name: data.name, scope: 'gen_static_qr' },
+                //     endpoint: `${url}/svt_api/webhook?scope=gen_static_qr`,
+                //     successCallback: () => {
+                //         toast({
+                //             title: `${name} Completed`,
+                //             description: `Your action on ${data.name} was successful!`,
+                //         })
+                //     }
+
+                // })
+
+
+                console.log("Getting payment url")
+
+                const chan = 'fpx';
+                const amt = (data.amount * 1);
+                const ref_no = `SUBS${data.id}`;
+                const url = `${serverUrl}/subscription_payment?chan=${chan}&amt=${amt}&ref_no=${ref_no}`;
+
+                router.push(url)
+
+
+            },
+
+        }
+
+        mapFunction[name]()
+        return null;
+    }
+
+
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <h2 className="text-3xl font-bold tracking-tight">Outlet Subscriptions</h2>
+            </div>
+
+            <DataTable
+                canDelete={true}
+                showNew={true}
+                model={'OutletSubscription'}
+                preloads={['outlet']}
+                search_queries={['a.ref_no']}
+                buttons={[
+                    { name: 'Pay', onclickFn: clickFn },
+
+                ]}
+                customCols={[
+                    {
+                        title: 'General',
+                        list: [
+                            { label: 'id', alt_class: 'hidden' },
+                            {
+                                label: 'outlet_id',
+                                customCols: null,
+                                selection: 'Outlet',
+                                search_queries: ['a.name'],
+                                newData: 'name',
+                                title_key: 'name'
+                            },
+                            { label: 'amount' },
+                            { label: 'start_date', date: true },
+                            { label: 'end_date', date: true },
+                            { label: 'ref_no' },
+                            { label: 'payment_url' },
+                            { label: 'webhook_details', editor2: true }
+                        ]
+                    }
+                ]}
+                columns={[
+                    { label: 'ID', data: 'id' },
+                    { label: 'Outlet', data: 'name', through: ['outlet'] },
+                    {
+                        label: 'Status', color: [
+                            {
+                                key: 'pending',
+                                value: 'destructive'
+                            },
+
+                            {
+                                key: 'paid',
+                                value: 'default'
+                            }
+                        ], data: 'status',
+                    },
+                    { label: 'Amount', data: 'amount' },
+                    { label: 'Start Date', data: 'start_date' },
+                    { label: 'End Date', data: 'end_date' },
+                    { label: 'Ref No', data: 'ref_no' },
+                    { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                ]}
+            />
+        </div>
+    )
+}
