@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 
 export default function OutletSubscriptionsPage() {
     const { user, isLoading } = useAuth();
+    console.log(user)
+    let organization_id = user.organization_id
     let { toast } = useToast()
     const router = useRouter();
     function clickFn(data: any, name: string) {
@@ -77,12 +79,20 @@ export default function OutletSubscriptionsPage() {
                             { label: 'id', alt_class: 'hidden' },
 
                             {
-                                label: 'outlet_id',
+                                label: 'invoice_id',
                                 customCols: null,
-                                selection: 'Outlet',
-                                search_queries: ['a.name'],
-                                newData: 'name',
-                                title_key: 'name'
+                                selection: 'Invoice',
+                                search_queries: ['a.ref_no'],
+                                newData: 'ref_no',
+                                title_key: 'ref_no'
+                            },
+                            {
+                                label: 'device_id',
+                                customCols: null,
+                                selection: 'Device',
+                                search_queries: ['a.short_name|a.organization_id=' + organization_id],
+                                newData: 'short_name',
+                                title_key: 'short_name'
                             },
                             { label: 'amount' },
                             {
@@ -95,9 +105,9 @@ export default function OutletSubscriptionsPage() {
                             },
                             { label: 'start_date', date: true },
                             { label: 'end_date', date: true },
-                            { label: 'ref_no' },
-                            { label: 'payment_url' },
-                            { label: 'webhook_details', editor2: true }
+                            // { label: 'ref_no' },
+                            // { label: 'payment_url' },
+                            // { label: 'webhook_details', editor2: true }
                         ]
                     }
                 ]}

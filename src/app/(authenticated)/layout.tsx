@@ -48,6 +48,7 @@ export default function AuthenticatedLayout({
         { name: "Outlets", href: "/outlets", icon: Store },
         { name: "Subscriptions", href: "/subscriptions", icon: Tag },
         { name: "Outlet Subscriptions", href: "/outlet_subscriptions", icon: FileClock },
+        { name: "Invoices", href: "/invoices", icon: FileScan },
         { name: "Sales", href: "/sales", icon: DollarSign },
       ]
     },
@@ -66,7 +67,7 @@ export default function AuthenticatedLayout({
     }
   ]
   let allowedRoutes = user?.userStruct?.role?.app_routes.map((v: any) => { return v.route })
-  allowedRoutes = ["/dashboard", "/devices", "/outlets", "/subscriptions", "/outlet_subscriptions", "/sales"];
+  allowedRoutes = ["/dashboard", "/devices", "/outlets", "/outlet_subscriptions", "/invoices", "/sales"];
 
   return (
     <FirebaseProvider>
