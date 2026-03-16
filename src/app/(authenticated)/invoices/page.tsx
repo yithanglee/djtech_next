@@ -215,21 +215,15 @@ export default function InvoicesPage() {
     function clickFn(data: any, name: string, refreshData: () => void) {
         const mapFunction: any = {
             'Pay': () => {
-
-
                 const serverUrl = PHX_HTTP_PROTOCOL + PHX_ENDPOINT;
-                console.log("Getting payment url")
-
                 const chan = 'fpx';
-                const amt = (data.amount * 1);
+                const amt = (data.grand_total || data.amount || 0) * 1;
                 const ref_no = `SUBS${data.id}`;
-                const url = `${serverUrl}/subscription_payment?chan=${chan}&amt=${amt}&ref_no=${ref_no}`;
+                const generatedUrl = `${serverUrl}/subscription_payment?chan=${chan}&amt=${amt}&ref_no=${ref_no}`;
+                const finalUrl = data.payment_url || generatedUrl;
 
-                router.push(url)
-
-
-                if (data.payment_url) {
-                    router.push(data.payment_url);
+                if (finalUrl) {
+                    window.open(finalUrl, '_blank', 'noopener,noreferrer');
                 } else {
                     toast({
                         title: "Payment URL missing",
@@ -286,19 +280,10 @@ export default function InvoicesPage() {
                                 newData: 'name',
                                 title_key: 'name'
                             },
-                            {
-                                label: 'staff_id',
-                                customCols: null,
-                                selection: 'Staff',
-                                search_queries: ['a.name'],
-                                newData: 'name',
-                                title_key: 'name'
-                            },
+
                             { label: 'ref_no' },
-                            { label: 'grand_total' },
                             { label: 'payment_url' },
                             { label: 'remarks', editor2: true },
-                            { label: 'webhook_details', editor2: true }
                         ]
                     }
                 ]}
@@ -403,7 +388,7 @@ export default function InvoicesPage() {
                                             </td>
                                             <td className="py-2 px-2">
                                                 <Badge
-                                                    variant={sub.status === 'paid' ? 'default' : 'destructive'}
+                                                    variant={sub.status === 'active' ? 'default' : 'destructive'}
                                                     className="capitalize text-xs"
                                                 >
                                                     {sub.status || 'pending'}
