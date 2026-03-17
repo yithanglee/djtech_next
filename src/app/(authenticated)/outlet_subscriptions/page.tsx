@@ -111,8 +111,8 @@ export default function OutletSubscriptionsPage() {
                                 newData: 'name',
                                 title_key: 'name'
                             },
-                            { label: 'start_date', date: true },
-                            { label: 'end_date', date: true },
+                            // { label: 'start_date', date: true },
+                            // { label: 'end_date', date: true },
                             // { label: 'ref_no' },
                             // { label: 'payment_url' },
                             // { label: 'webhook_details', editor2: true }

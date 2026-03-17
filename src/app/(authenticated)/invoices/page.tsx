@@ -57,7 +57,7 @@ export default function InvoicesPage() {
         try {
             const [outletSubscriptionsResp] = await Promise.all([api_get(url, {
                 scope: 'datatable', model: 'OutletSubscription',
-
+                preloads: JSON.stringify(['outlet']),
                 additional_joins: JSON.stringify([
                     // { join_suffix: 'a', assoc: 'merchant', prefix: 'b' }
                 ]),
