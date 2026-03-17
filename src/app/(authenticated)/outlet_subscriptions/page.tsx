@@ -10,6 +10,8 @@ import { Loader2 } from "lucide-react";
 
 export default function OutletSubscriptionsPage() {
     const { user, isLoading } = useAuth();
+    let { toast } = useToast()
+    const router = useRouter();
     if (isLoading || !user) {
         return (
             <div className="flex items-center justify-center p-12">
@@ -19,8 +21,6 @@ export default function OutletSubscriptionsPage() {
     }
     console.log(user)
     let organization_id = user?.organization_id
-    let { toast } = useToast()
-    const router = useRouter();
     function clickFn(data: any, name: string) {
         console.log(name)
         console.log(data)
