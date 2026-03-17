@@ -6,11 +6,19 @@ import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from "@/lib/constants";
 import ModelProvider from "@/lib/provider";
 import { postData } from "@/lib/svt_utils";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function OutletSubscriptionsPage() {
     const { user, isLoading } = useAuth();
+    if (isLoading || !user) {
+        return (
+            <div className="flex items-center justify-center p-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        )
+    }
     console.log(user)
-    let organization_id = user.organization_id
+    let organization_id = user?.organization_id
     let { toast } = useToast()
     const router = useRouter();
     function clickFn(data: any, name: string) {
