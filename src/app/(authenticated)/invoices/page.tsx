@@ -158,8 +158,8 @@ export default function InvoicesPage() {
         setSaving(true);
 
         try {
-            const toLink = [...selectedSubIds].filter(id => !originalSubIds.has(id));
-            const toUnlink = [...originalSubIds].filter(id => !selectedSubIds.has(id));
+            const toLink = Array.from(selectedSubIds).filter(id => !originalSubIds.has(id));
+            const toUnlink = Array.from(originalSubIds).filter(id => !selectedSubIds.has(id));
 
             const promises: Promise<any>[] = [];
 
