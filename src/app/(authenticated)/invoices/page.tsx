@@ -49,7 +49,14 @@ export default function InvoicesPage() {
     const [subsSearch, setSubsSearch] = useState('');
     const [subsLoading, setSubsLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
     const SUBS_PER_PAGE = 10;
+
+    useEffect(() => {
+        if (user?.userStruct?.role.name == 'admin') {
+            setIsAdmin(true);
+        }
+    }, [user]);
 
     // Fetch outlet subscriptions for the inline panel
     const fetchSubscriptions = useCallback(async (page: number, search: string) => {
@@ -235,6 +242,11 @@ export default function InvoicesPage() {
             'Manage Subscriptions': () => {
                 openSubsPanel(data.id);
             },
+            'Show PDF': () => {
+                const serverUrl = PHX_HTTP_PROTOCOL + PHX_ENDPOINT;
+                const finalUrl = `${serverUrl}/pdf?id=${data.id}&type=invoice`;
+                window.open(finalUrl, '_blank', 'noopener,noreferrer');
+            },
         };
 
         if (mapFunction[name]) {
@@ -257,51 +269,93 @@ export default function InvoicesPage() {
             <div className="flex justify-between items-center">
                 <h2 className="text-3xl font-bold tracking-tight">Invoices</h2>
             </div>
+            {isAdmin && (
+                <DataTable
+                    canDelete={true}
+                    showNew={true}
+                    model={'Invoice'}
+                    search_queries={['a.ref_no']}
+                    buttons={[
+                        { name: 'Pay', onclickFn: clickFn },
+                        { name: 'Manage Subscriptions', onclickFn: clickFn },
+                        { name: 'Show PDF', onclickFn: clickFn },
+                    ]}
+                    customCols={[
+                        {
+                            title: 'General',
+                            list: [
+                                { label: 'id', alt_class: 'hidden' },
+                                {
+                                    label: 'organization_id',
+                                    customCols: null,
+                                    selection: 'Organization',
+                                    search_queries: ['a.name'],
+                                    newData: 'name',
+                                    title_key: 'name'
+                                },
 
-            <DataTable
-                canDelete={true}
-                showNew={true}
-                model={'Invoice'}
-                search_queries={['a.ref_no']}
-                buttons={[
-                    { name: 'Pay', onclickFn: clickFn },
-                    { name: 'Manage Subscriptions', onclickFn: clickFn },
-                ]}
-                customCols={[
-                    {
-                        title: 'General',
-                        list: [
-                            { label: 'id', alt_class: 'hidden' },
-                            {
-                                label: 'organization_id',
-                                customCols: null,
-                                selection: 'Organization',
-                                search_queries: ['a.name'],
-                                newData: 'name',
-                                title_key: 'name'
-                            },
+                                { label: 'ref_no' },
+                                { label: 'due_date', date: true },
+                                { label: 'payment_url' },
+                                { label: 'remarks', editor2: true },
+                            ]
+                        }
+                    ]}
+                    columns={[
+                        { label: 'ID', data: 'id' },
+                        { label: 'Ref No', data: 'ref_no' },
+                        { label: 'Due Date', data: 'due_date' },
+                        { label: 'Total', data: 'grand_total' },
+                        {
+                            label: 'Status', data: 'status', color: [
+                                { key: 'paid', value: 'green' },
+                                { key: 'unpaid', value: 'red' },
+                                { key: 'partial', value: 'yellow' },
+                            ]
+                        },
+                        { label: 'Payment URL', data: 'payment_url' },
+                        { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                    ]}
+                />
+            )}
+            {isAdmin != true && (
+                <DataTable
+                    canDelete={false}
+                    showNew={false}
+                    model={'Invoice'}
+                    search_queries={['a.ref_no']}
+                    buttons={[
+                        { name: 'Pay', onclickFn: clickFn },
+                        // { name: 'Manage Subscriptions', onclickFn: clickFn },
+                        { name: 'Show PDF', onclickFn: clickFn },
+                    ]}
+                    customCols={[
+                        {
+                            title: 'General',
+                            list: [
+                                { label: 'id', alt_class: 'hidden' },
 
-                            { label: 'ref_no' },
-                            { label: 'payment_url' },
-                            { label: 'remarks', editor2: true },
-                        ]
-                    }
-                ]}
-                columns={[
-                    { label: 'ID', data: 'id' },
-                    { label: 'Ref No', data: 'ref_no' },
-                    { label: 'Total', data: 'grand_total' },
-                    {
-                        label: 'Status', data: 'status', color: [
-                            { key: 'paid', value: 'green' },
-                            { key: 'unpaid', value: 'red' },
-                            { key: 'partial', value: 'yellow' },
-                        ]
-                    },
-                    { label: 'Payment URL', data: 'payment_url' },
-                    { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
-                ]}
-            />
+                                { label: 'remarks', editor2: true },
+                            ]
+                        }
+                    ]}
+                    columns={[
+                        { label: 'ID', data: 'id' },
+                        { label: 'Ref No', data: 'ref_no' },
+                        { label: 'Due Date', data: 'due_date' },
+                        { label: 'Total', data: 'grand_total' },
+                        {
+                            label: 'Status', data: 'status', color: [
+                                { key: 'paid', value: 'green' },
+                                { key: 'unpaid', value: 'red' },
+                                { key: 'partial', value: 'yellow' },
+                            ]
+                        },
+                        { label: 'Payment URL', data: 'payment_url' },
+                        { label: 'Timestamp', data: 'inserted_at', formatDateTime: true, offset: 8 }
+                    ]}
+                />
+            )}
 
             {/* Inline Outlet Subscriptions Panel */}
             {panelOpen && currentInvoiceId && (

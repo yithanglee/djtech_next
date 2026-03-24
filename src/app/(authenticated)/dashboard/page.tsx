@@ -4,11 +4,16 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from "@/lib/auth"
 import { useToast } from "@/hooks/use-toast"
 import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from '@/lib/constants'
+import { api_get } from '@/lib/svt_utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import DataTable from '@/components/data/table'
 import SalesHistoryChart from '@/components/charts/sales-history'
 import MonthlySalesChart from '@/components/charts/monthly-sales'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { AlertCircle } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface SalesDataEntry {
@@ -45,6 +50,7 @@ interface MonthlyData {
 export default function Dashboard() {
   const [salesData, setSalesData] = useState<SalesDataEntry[]>([])
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
+  const [unpaidInvoices, setUnpaidInvoices] = useState<any[]>([])
   const [currentYearMonth, setCurrentYearMonth] = useState("2026-01")
   const [selectedYear, setSelectedYear] = useState("2026")
   const { user, isLoading } = useAuth();
@@ -105,17 +111,57 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    
-      fetchSalesData(currentYearMonth)
-      fetchMonthlyData(selectedYear)
-    
+    fetchSalesData(currentYearMonth)
+    fetchMonthlyData(selectedYear)
+
+    // Fetch outstanding invoices
+    const fetchInvoices = async () => {
+      if (user?.userStruct?.organization_id) {
+        const orgId = user.userStruct.organization_id
+        try {
+          const [invoicesResp] = await Promise.all([
+            api_get(url, {
+              scope: 'datatable',
+              model: 'Invoice',
+              organization_id: orgId,
+              additional_search: JSON.stringify([
+                { column: 'status', value: 'paid', prefix: 'a', operator: '!=' },
+                { column: 'status', value: 'complete', prefix: 'a', operator: '!=' }
+              ]),
+              length: 100,
+              start: 0
+            }).catch(() => ({ data: [] }))
+          ])
+
+          if (invoicesResp && invoicesResp.data) {
+            setUnpaidInvoices(invoicesResp.data)
+          }
+        } catch (error) {
+          console.error('Error fetching invoices:', error)
+        }
+      }
+    }
+
+    fetchInvoices()
   }, [user?.userStruct?.organization_id])
-
-
 
   return (
     <div className="container mx-auto">
       <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+
+      {unpaidInvoices.length > 0 && (
+        <Alert variant="destructive" className="mb-6 border-red-500 bg-red-50 dark:bg-red-950/20">
+          <AlertCircle className="h-4 w-4" color="#ef4444" />
+          <AlertTitle className="text-red-700 dark:text-red-400 font-bold">Action Required</AlertTitle>
+          <AlertDescription className="text-red-700 dark:text-red-400 mt-2 flex flex-col md:flex-row justify-between items-start md:items-center">
+            <span>You have {unpaidInvoices.length} outstanding invoice(s). Please proceed to complete the payment.</span>
+            <Link href="/invoices" className="mt-3 md:mt-0">
+              <Button variant="destructive" size="sm">Pay Invoices</Button>
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-8">
         <SalesHistoryChart
           data={salesData}
@@ -235,7 +281,7 @@ export default function Dashboard() {
                 model={'Device'}
                 preloads={['outlet', 'executor_board', 'organization']}
                 buttons={[{ name: 'Clear Logs', onclickFn: clickFn },
-                { name: 'Regen QR', onclickFn: clickFn,  showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+                { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
                 { name: 'Control', onclickFn: clickFn, href: hrefFn }
 
                 ]}

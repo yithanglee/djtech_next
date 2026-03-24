@@ -1,9 +1,22 @@
+'use client';
 import DataTable from "@/components/data/table"
+import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from "@/lib/constants"
+import { postData } from "@/lib/svt_utils"
 
 
 export default function MembersPage() {
 
   // This is a placeholder for future implementation
+
+  function clickFn(data: any, name: string) {
+    postData({
+      data: { id: data.id, scope: 'set_organization_id_null' },
+      endpoint: `${PHX_HTTP_PROTOCOL}${PHX_ENDPOINT}/svt_api/webhook`,
+      successCallback: () => {
+        window.location.reload();
+      }
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -16,8 +29,10 @@ export default function MembersPage() {
         preloads={['organization', 'role']}
         showNew={true}
         model={'Staff'}
-     
         search_queries={['a.name']}
+        buttons={[
+          { name: 'Set Null', onclickFn: clickFn },
+        ]}
         customCols={
           [
             {

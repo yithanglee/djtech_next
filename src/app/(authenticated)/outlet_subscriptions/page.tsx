@@ -77,7 +77,7 @@ export default function OutletSubscriptionsPage() {
                 preloads={['outlet']}
                 search_queries={['a.ref_no']}
                 buttons={[
-                    { name: 'Pay', onclickFn: clickFn },
+                    // { name: 'Pay', onclickFn: clickFn },
 
                 ]}
                 customCols={[
@@ -111,8 +111,8 @@ export default function OutletSubscriptionsPage() {
                                 newData: 'name',
                                 title_key: 'name'
                             },
-                            // { label: 'start_date', date: true },
-                            // { label: 'end_date', date: true },
+                            { label: 'start_date', date: true },
+                            { label: 'end_date', date: true },
                             // { label: 'ref_no' },
                             // { label: 'payment_url' },
                             // { label: 'webhook_details', editor2: true }

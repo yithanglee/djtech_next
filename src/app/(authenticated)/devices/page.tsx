@@ -6,6 +6,7 @@ import { PHX_ENDPOINT, PHX_HTTP_PROTOCOL } from "@/lib/constants";
 import ModelProvider from "@/lib/provider";
 import { postData } from "@/lib/svt_utils";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
 export default function DevicesPage() {
   const router = useRouter();
   let { toast } = useToast()
@@ -98,7 +99,7 @@ export default function DevicesPage() {
           appendQueries={{ organization_id: user?.userStruct?.organization_id }}
           showNew={true}
           model={'Device'}
-          preloads={['outlet', 'executor_board', 'organization']}
+          preloads={['outlet', 'executor_board', 'organization', 'outlet_subscriptions']}
           buttons={[
             { name: 'Clear Logs', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
             { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
@@ -175,6 +176,32 @@ export default function DevicesPage() {
             { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
             { label: 'Device', data: 'name' },
             { label: 'Firmware', data: 'current_firmware_version' },
+            {
+              label: 'Subscription',
+              data: 'outlet_subscriptions',
+              renderFn: (item: any) => {
+                const value = item.outlet_subscriptions;
+                if (Array.isArray(value) && value.length > 0) {
+                  const relevantSubs = value.filter((sub: any) => sub.status === 'active' || sub.status === 'pending');
+                  if (relevantSubs.length > 0) {
+                    const subList = [...relevantSubs].sort((a: any, b: any) => {
+                      if (!a.end_date) return 1;
+                      if (!b.end_date) return -1;
+                      return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
+                    });
+                    const latestSub = subList[0];
+                    const statusColor = latestSub.status === 'pending' ? 'text-red-500' : 'text-blue-600';
+                    return (
+                      <div className={`flex flex-col text-sm space-y-0.5 ${statusColor}`}>
+                        <span className="whitespace-nowrap text-[11px] opacity-70">S: {latestSub.start_date || '-'}</span>
+                        <span className="font-bold whitespace-nowrap text-[11px]">E: {latestSub.end_date || '-'}</span>
+                      </div>
+                    );
+                  }
+                }
+                return <span className="text-muted-foreground text-[11px] italic">No Subscription</span>;
+              }
+            },
             { label: 'Timestamp', data: 'inserted_at', offset: 8, formatDateTime: true },
             {
               label: 'In service?', data: 'is_active', color: [
