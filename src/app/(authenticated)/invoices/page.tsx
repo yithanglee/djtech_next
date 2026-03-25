@@ -341,7 +341,7 @@ export default function InvoicesPage() {
                     ]}
                     columns={[
                         { label: 'ID', data: 'id' },
-                        { label: 'Ref No', data: 'ref_no' },
+                        // { label: 'Ref No', data: 'ref_no' },
                         { label: 'Due Date', data: 'due_date' },
                         { label: 'Total', data: 'grand_total' },
                         {
