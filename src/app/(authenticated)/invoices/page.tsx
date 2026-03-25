@@ -323,7 +323,7 @@ export default function InvoicesPage() {
                     canDelete={false}
                     showNew={false}
                     model={'Invoice'}
-                    search_queries={['a.ref_no']}
+                    search_queries={['a.ref_no', `a.organization_id=${user?.userStruct?.organization_id}`]}
                     buttons={[
                         { name: 'Pay', onclickFn: clickFn },
                         // { name: 'Manage Subscriptions', onclickFn: clickFn },
