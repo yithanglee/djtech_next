@@ -50,6 +50,7 @@ export default function InvoicesPage() {
     const [subsLoading, setSubsLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
     const SUBS_PER_PAGE = 10;
 
     useEffect(() => {
@@ -59,18 +60,18 @@ export default function InvoicesPage() {
     }, [user]);
 
     // Fetch outlet subscriptions for the inline panel
-    const fetchSubscriptions = useCallback(async (page: number, search: string) => {
+    const fetchSubscriptions = useCallback(async (page: number, search: string, organization_id: number) => {
         setSubsLoading(true);
         try {
             const [outletSubscriptionsResp] = await Promise.all([api_get(url, {
                 scope: 'datatable', model: 'OutletSubscription',
                 preloads: JSON.stringify(['outlet']),
                 additional_joins: JSON.stringify([
-                    // { join_suffix: 'a', assoc: 'merchant', prefix: 'b' }
+                    { join_suffix: 'a', assoc: 'outlet', prefix: 'b' }
                 ]),
 
                 additional_search: JSON.stringify([
-                    // { column: 'invoice_id', value: invoiceId, prefix: 'a', operator: '=' },
+                    { column: 'organization_id', value: organization_id, prefix: 'b', operator: '=' },
                     // { column: 'name', value: true, prefix: 'a', operator: 'not_null' }
                 ]),
                 length: SUBS_PER_PAGE,
@@ -142,8 +143,11 @@ export default function InvoicesPage() {
     // Re-fetch subscriptions when page or search changes
     useEffect(() => {
         if (panelOpen) {
-            fetchSubscriptions(subsPage, subsSearch);
+            fetchSubscriptions(subsPage, subsSearch, selectedInvoice?.organization_id || 0);
+        } else {
+            fetchSubscriptions(subsPage, subsSearch, 0);
         }
+
     }, [panelOpen, subsPage, subsSearch, fetchSubscriptions]);
 
     // Toggle a subscription checkbox
@@ -165,6 +169,10 @@ export default function InvoicesPage() {
         setSaving(true);
 
         try {
+            if (!user?.token) {
+                throw new Error('Missing auth token');
+            }
+
             const toLink = Array.from(selectedSubIds).filter(id => !originalSubIds.has(id));
             const toUnlink = Array.from(originalSubIds).filter(id => !selectedSubIds.has(id));
 
@@ -172,13 +180,17 @@ export default function InvoicesPage() {
 
             for (const id of toLink) {
                 const formData = new FormData();
+                // Follow the same pattern as `DynamicForm`: POST to the module endpoint with id in the payload.
+                formData.append('OutletSubscription[id]', id.toString());
                 formData.append('OutletSubscription[invoice_id]', currentInvoiceId.toString());
                 promises.push(
-                    fetch(`${url}/svt_api/OutletSubscription/${id}`, {
+                    postData({
+                        endpoint: `${url}/svt_api/OutletSubscription`,
                         method: 'POST',
-                        body: formData,
-                        headers: {
-                            'authorization': `Basic ${user?.token}`,
+                        data: formData,
+                        isFormData: true,
+                        additionalHeaders: {
+                            authorization: `Basic ${user.token}`,
                         },
                     })
                 );
@@ -186,13 +198,16 @@ export default function InvoicesPage() {
 
             for (const id of toUnlink) {
                 const formData = new FormData();
+                formData.append('OutletSubscription[id]', id.toString());
                 formData.append('OutletSubscription[invoice_id]', '');
                 promises.push(
-                    fetch(`${url}/svt_api/OutletSubscription/${id}`, {
+                    postData({
+                        endpoint: `${url}/svt_api/OutletSubscription`,
                         method: 'POST',
-                        body: formData,
-                        headers: {
-                            'authorization': `Basic ${user?.token}`,
+                        data: formData,
+                        isFormData: true,
+                        additionalHeaders: {
+                            authorization: `Basic ${user.token}`,
                         },
                     })
                 );
@@ -240,6 +255,7 @@ export default function InvoicesPage() {
                 }
             },
             'Manage Subscriptions': () => {
+                setSelectedInvoice(data);
                 openSubsPanel(data.id);
             },
             'Show PDF': () => {

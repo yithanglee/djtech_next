@@ -7,11 +7,13 @@ import ModelProvider from "@/lib/provider";
 import { postData } from "@/lib/svt_utils";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export default function OutletSubscriptionsPage() {
     const { user, isLoading } = useAuth();
     let { toast } = useToast()
     const router = useRouter();
+    const [idListSelected, setIdListSelected] = useState<string[]>([])
     if (isLoading || !user) {
         return (
             <div className="flex items-center justify-center p-12">
@@ -74,8 +76,41 @@ export default function OutletSubscriptionsPage() {
                 canDelete={true}
                 showNew={true}
                 model={'OutletSubscription'}
-                preloads={['outlet']}
+                preloads={['outlet', 'invoice']}
                 search_queries={['a.ref_no']}
+                enableMultiSelect={true}
+                idListSelected={idListSelected}
+                onIdListSelectedChange={setIdListSelected}
+                bulkActions={[
+                    {
+                        name: 'Delete selected',
+                        variant: 'destructive',
+                        onClickFn: (ids, refreshData, confirmModalFn) => {
+                            if (ids.length === 0) return
+                            confirmModalFn(true, `Delete ${ids.length} selected item(s)?`, async () => {
+                                try {
+                                    await Promise.all(ids.map((id) => postData({
+                                        method: "DELETE",
+                                        endpoint: `${PHX_HTTP_PROTOCOL}${PHX_ENDPOINT}/svt_api/OutletSubscription/${id}`,
+                                    })))
+                                    await refreshData()
+                                    setIdListSelected([])
+                                    toast({
+                                        title: "Deleted",
+                                        description: `Deleted ${ids.length} item(s).`,
+                                    })
+                                } catch (e: any) {
+                                    console.error(e)
+                                    toast({
+                                        title: "Delete failed",
+                                        description: e?.message ?? "Failed to delete selected items.",
+                                        variant: "destructive" as any,
+                                    })
+                                }
+                            })
+                        },
+                    }
+                ]}
                 buttons={[
                     // { name: 'Pay', onclickFn: clickFn },
 
@@ -122,6 +157,7 @@ export default function OutletSubscriptionsPage() {
                 columns={[
                     { label: 'ID', data: 'id' },
                     { label: 'Outlet', data: 'name', through: ['outlet'] },
+                    { label: 'Invoice', data: 'ref_no', through: ['invoice'] },
                     {
                         label: 'Status', color: [
                             {
@@ -130,7 +166,7 @@ export default function OutletSubscriptionsPage() {
                             },
 
                             {
-                                key: 'paid',
+                                key: 'active',
                                 value: 'default'
                             }
                         ], data: 'status',
