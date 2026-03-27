@@ -123,8 +123,8 @@ export default function Dashboard() {
             api_get(url, {
               scope: 'datatable',
               model: 'Invoice',
-              organization_id: orgId,
               additional_search: JSON.stringify([
+                { column: 'organization_id', value: orgId, prefix: 'a', operator: '==' },
                 { column: 'status', value: 'paid', prefix: 'a', operator: '!=' },
                 { column: 'status', value: 'complete', prefix: 'a', operator: '!=' }
               ]),

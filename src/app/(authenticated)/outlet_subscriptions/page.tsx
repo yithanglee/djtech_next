@@ -99,6 +99,7 @@ export default function OutletSubscriptionsPage() {
                                         title: "Deleted",
                                         description: `Deleted ${ids.length} item(s).`,
                                     })
+                                    confirmModalFn(false, '', () => { })
                                 } catch (e: any) {
                                     console.error(e)
                                     toast({
@@ -106,6 +107,7 @@ export default function OutletSubscriptionsPage() {
                                         description: e?.message ?? "Failed to delete selected items.",
                                         variant: "destructive" as any,
                                     })
+                                    confirmModalFn(false, '', () => { })
                                 }
                             })
                         },

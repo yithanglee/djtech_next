@@ -1,4 +1,5 @@
 'use client';
+import React, { useCallback, useEffect } from 'react';
 import DataTable from "@/components/data/table"
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/lib/auth";
@@ -7,10 +8,11 @@ import ModelProvider from "@/lib/provider";
 import { postData } from "@/lib/svt_utils";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 export default function DevicesPage() {
   const router = useRouter();
   let { toast } = useToast()
-
+  const [idListSelected, setIdListSelected] = useState<string[]>([])
   const { user, isLoading } = useAuth();
   function hrefFn2(data: any) {
     console.log(data)
@@ -83,7 +85,12 @@ export default function DevicesPage() {
   if (user?.userStruct?.organization_id == null) {
     current_search_queries = ['a.name'];
   }
-
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (user?.userStruct?.role.name == 'admin') {
+      setIsAdmin(true);
+    }
+  }, [user]);
 
   return (
     <ModelProvider modelName="devices">
@@ -94,12 +101,49 @@ export default function DevicesPage() {
         </div>
 
 
-        <DataTable
+        {isAdmin == true && (<DataTable
           canDelete={user?.userStruct?.role.name == 'admin' ? true : false}
           appendQueries={{ organization_id: user?.userStruct?.organization_id }}
           showNew={true}
           model={'Device'}
           preloads={['outlet', 'executor_board', 'organization', 'outlet_subscriptions']}
+
+
+          enableMultiSelect={true}
+          idListSelected={idListSelected}
+          onIdListSelectedChange={setIdListSelected}
+          bulkActions={[
+            {
+              name: 'Delete selected',
+              variant: 'destructive',
+              onClickFn: (ids, refreshData, confirmModalFn) => {
+                if (ids.length === 0) return
+                confirmModalFn(true, `Delete ${ids.length} selected item(s)?`, async () => {
+                  try {
+                    await Promise.all(ids.map((id) => postData({
+                      method: "DELETE",
+                      endpoint: `${PHX_HTTP_PROTOCOL}${PHX_ENDPOINT}/svt_api/Device/${id}`,
+                    })))
+                    await refreshData()
+                    setIdListSelected([])
+                    toast({
+                      title: "Deleted",
+                      description: `Deleted ${ids.length} item(s).`,
+                    })
+                    confirmModalFn(false, '', () => { })
+                  } catch (e: any) {
+                    console.error(e)
+                    toast({
+                      title: "Delete failed",
+                      description: e?.message ?? "Failed to delete selected items.",
+                      variant: "destructive" as any,
+                    })
+                    confirmModalFn(false, '', () => { })
+                  }
+                })
+              },
+            }
+          ]}
           buttons={[
             { name: 'Clear Logs', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
             { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
@@ -221,7 +265,140 @@ export default function DevicesPage() {
           ]}
 
 
-        />
+        />)}
+
+
+
+        {isAdmin != true && (<DataTable
+          canDelete={user?.userStruct?.role.name == 'admin' ? true : false}
+          appendQueries={{ organization_id: user?.userStruct?.organization_id }}
+          showNew={true}
+          model={'Device'}
+          preloads={['outlet', 'executor_board', 'organization', 'outlet_subscriptions']}
+
+
+          buttons={[
+            { name: 'Clear Logs', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+            { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+            // { name: 'Website', onclickFn: clickFn, href: hrefFn },
+            { name: 'Control', onclickFn: clickFn }]}
+          search_queries={['a.name']}
+          customCols={
+            [
+              {
+                title: 'General',
+                list: [
+                  { label: 'id', alt_class: 'hidden' },
+
+                  { label: 'name', alt_class: 'w-full lg:w-2/3 mx-4 my-2' },
+                  'short_name',
+                  'default_io_pin',
+                  'default_delay',
+                  'format',
+
+
+                  {
+                    label: 'outlet_id',
+                    selection: 'Outlet',
+                    alt_class: 'w-full lg:w-1/3 mx-4 my-2',
+                    customCols: null,
+                    search_queries: current_search_queries,
+                    newData: 'name',
+                    title_key: 'name'
+                  },
+
+                  {
+                    label: 'organization_id',
+                    selection: 'Organization',
+                    customCols: null,
+                    search_queries: ['a.name'],
+                    newData: 'name',
+                    title_key: 'name'
+                  },
+
+                  { label: 'skip_first', boolean: true },
+                  { label: 'is_active', boolean: true },
+                  { label: 'record_wifi_time', boolean: true },
+                  { label: 'is_cloridge', boolean: true },
+                  { label: 'is_round_down', alt_class: 'hidden' }
+
+
+                ]
+              },
+              {
+                title: 'Details',
+                list: [{ label: 'id', alt_class: 'hidden' },
+                { label: 'skip_first', boolean: true },
+                { label: 'is_active', boolean: true },
+                { label: 'record_wifi_time', boolean: true },
+                { label: 'is_cloridge', boolean: true },
+                  'cloridge_device_uid',
+                {
+                  label: 'executor_board_id',
+                  selection: 'Device',
+                  customCols: null,
+                  search_queries: ['a.name'],
+                  newData: 'name',
+                  title_key: 'name'
+                },
+
+
+
+
+                ]
+              }
+            ]
+          }
+          columns={[
+            { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
+            { label: 'Device', data: 'name' },
+            { label: 'Firmware', data: 'current_firmware_version' },
+            {
+              label: 'Subscription',
+              data: 'outlet_subscriptions',
+              renderFn: (item: any) => {
+                const value = item.outlet_subscriptions;
+                if (Array.isArray(value) && value.length > 0) {
+                  const relevantSubs = value.filter((sub: any) => sub.status === 'active' || sub.status === 'pending');
+                  if (relevantSubs.length > 0) {
+                    const subList = [...relevantSubs].sort((a: any, b: any) => {
+                      if (!a.end_date) return 1;
+                      if (!b.end_date) return -1;
+                      return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
+                    });
+                    const latestSub = subList[0];
+                    const statusColor = latestSub.status === 'pending' ? 'text-red-500' : 'text-blue-600';
+                    return (
+                      <div className={`flex flex-col text-sm space-y-0.5 ${statusColor}`}>
+                        <span className="whitespace-nowrap text-[11px] opacity-70">S: {latestSub.start_date || '-'}</span>
+                        <span className="font-bold whitespace-nowrap text-[11px]">E: {latestSub.end_date || '-'}</span>
+                      </div>
+                    );
+                  }
+                }
+                return <span className="text-muted-foreground text-[11px] italic">No Subscription</span>;
+              }
+            },
+            { label: 'Timestamp', data: 'inserted_at', offset: 8, formatDateTime: true },
+            {
+              label: 'In service?', data: 'is_active', color: [
+                {
+                  key: false,
+                  value: 'destructive'
+                },
+
+                {
+                  key: true,
+                  value: 'default'
+                }
+              ], altClass: 'mt-2'
+            },
+            { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
+            { label: 'Organization', data: 'name', through: ['organization'], altClass: '' },
+          ]}
+
+
+        />)}
       </div>
     </ModelProvider>
   )
