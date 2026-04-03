@@ -309,6 +309,7 @@ export default function InvoicesPage() {
                                     newData: 'name',
                                     title_key: 'name'
                                 },
+                                { label: 'payment_method', selection: ['fpx', 'billplz'] },
 
                                 { label: 'ref_no' },
                                 { label: 'due_date', date: true },
@@ -357,8 +358,9 @@ export default function InvoicesPage() {
                     ]}
                     columns={[
                         { label: 'ID', data: 'id' },
-                        // { label: 'INV No', data: 'ref_no' },
+                        { label: 'Ref No', data: 'ref_no' },
                         { label: 'Due Date', data: 'due_date' },
+              
                         { label: 'Total', data: 'grand_total' },
                         {
                             label: 'Status', data: 'status', color: [

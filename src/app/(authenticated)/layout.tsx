@@ -67,7 +67,7 @@ export default function AuthenticatedLayout({
     }
   ]
   let allowedRoutes = user?.userStruct?.role?.app_routes.map((v: any) => { return v.route })
-  allowedRoutes = ["/dashboard", "/devices", "/outlets", "/invoices", "/sales"];
+  allowedRoutes = ["/dashboard", "/devices", "/outlets", "/invoices", "/sales", "/subscriptions"];
 
   return (
     <FirebaseProvider>
