@@ -74,6 +74,18 @@ export default function DevicesPage() {
         console.log("Control")
         router.push('/devices/' + data.id + '/details')
       },
+      'Block/Unblock': () => {
+        postData({
+          data: { id: data.id, device_id: data.id, scope: 'block_device' },
+          endpoint: `${url}/svt_api/webhook?scope=block_device`,
+          successCallback: () => {
+            toast({
+              title: `${name} Completed`,
+              description: `Action on ${data.name} successful!`,
+            })
+          }
+        })
+      },
     }
 
     mapFunction[name]()
@@ -147,6 +159,7 @@ export default function DevicesPage() {
           buttons={[
             { name: 'Clear Logs', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
             { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+            { name: 'Block/Unblock', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
             // { name: 'Website', onclickFn: clickFn, href: hrefFn },
             { name: 'Control', onclickFn: clickFn }]}
           search_queries={['a.name']}
@@ -187,8 +200,8 @@ export default function DevicesPage() {
                   { label: 'is_active', boolean: true },
                   { label: 'record_wifi_time', boolean: true },
                   { label: 'is_cloridge', boolean: true },
-                  { label: 'is_round_down', alt_class: 'hidden' }
-
+                  { label: 'is_round_down', alt_class: 'hidden' },
+                  { label: 'is_blocked', boolean: true }
 
                 ]
               },
@@ -199,6 +212,7 @@ export default function DevicesPage() {
                 { label: 'is_active', boolean: true },
                 { label: 'record_wifi_time', boolean: true },
                 { label: 'is_cloridge', boolean: true },
+                { label: 'is_blocked', boolean: true },
                   'cloridge_device_uid',
                 {
                   label: 'executor_board_id',
@@ -262,6 +276,19 @@ export default function DevicesPage() {
             },
             { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
             { label: 'Organization', data: 'name', through: ['organization'], altClass: '' },
+            {
+              label: 'Blocked?', data: 'is_blocked', color: [
+                {
+                  key: true,
+                  value: 'destructive'
+                },
+
+                {
+                  key: false,
+                  value: 'default'
+                }
+              ], altClass: 'mt-2'
+            },
           ]}
 
 
@@ -280,6 +307,7 @@ export default function DevicesPage() {
           buttons={[
             { name: 'Clear Logs', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
             { name: 'Regen QR', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
+            { name: 'Block/Unblock', onclickFn: clickFn, showCondition: (data: any) => user?.userStruct?.role.name == 'admin' },
             // { name: 'Website', onclickFn: clickFn, href: hrefFn },
             { name: 'Control', onclickFn: clickFn }]}
           search_queries={['a.name']}
@@ -320,7 +348,8 @@ export default function DevicesPage() {
                   { label: 'is_active', boolean: true },
                   { label: 'record_wifi_time', boolean: true },
                   { label: 'is_cloridge', boolean: true },
-                  { label: 'is_round_down', alt_class: 'hidden' }
+                  { label: 'is_round_down', alt_class: 'hidden' },
+                  { label: 'is_blocked', boolean: true }
 
 
                 ]
@@ -332,6 +361,7 @@ export default function DevicesPage() {
                 { label: 'is_active', boolean: true },
                 { label: 'record_wifi_time', boolean: true },
                 { label: 'is_cloridge', boolean: true },
+                { label: 'is_blocked', boolean: true },
                   'cloridge_device_uid',
                 {
                   label: 'executor_board_id',
@@ -395,6 +425,19 @@ export default function DevicesPage() {
             },
             { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
             { label: 'Organization', data: 'name', through: ['organization'], altClass: '' },
+            {
+              label: 'Blocked?', data: 'is_blocked', color: [
+                {
+                  key: true,
+                  value: 'destructive'
+                },
+
+                {
+                  key: false,
+                  value: 'default'
+                }
+              ], altClass: 'mt-2'
+            },
           ]}
 
 
