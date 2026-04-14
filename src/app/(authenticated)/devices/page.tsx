@@ -118,7 +118,7 @@ export default function DevicesPage() {
           appendQueries={{ organization_id: user?.userStruct?.organization_id }}
           showNew={true}
           model={'Device'}
-          preloads={['outlet.organization', 'executor_board', 'organization', 'outlet_subscriptions']}
+          preloads={['outlet', 'executor_board', 'organization', 'outlet_subscriptions']}
 
 
           enableMultiSelect={true}
