@@ -118,7 +118,7 @@ export default function DevicesPage() {
           appendQueries={{ organization_id: user?.userStruct?.organization_id }}
           showNew={true}
           model={'Device'}
-          preloads={['outlet', 'executor_board', 'organization', 'outlet_subscriptions']}
+          preloads={['outlet.organization', 'executor_board', 'organization', 'outlet_subscriptions']}
 
 
           enableMultiSelect={true}
@@ -233,6 +233,7 @@ export default function DevicesPage() {
           columns={[
             { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
             { label: 'Device', data: 'name' },
+            { label: 'Phone No', data: 'phone_no', through: ['organization'] },
             { label: 'Firmware', data: 'current_firmware_version' },
             {
               label: 'Subscription',
@@ -381,7 +382,9 @@ export default function DevicesPage() {
           }
           columns={[
             { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
-            { label: 'Device', data: 'name' },
+            { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
+            { label: 'Name', data: 'short_name', subtitle: { label: 'name', data: 'name' } },
+
             { label: 'Firmware', data: 'current_firmware_version' },
             {
               label: 'Subscription',
@@ -423,7 +426,7 @@ export default function DevicesPage() {
                 }
               ], altClass: 'mt-2'
             },
-            { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
+
             { label: 'Organization', data: 'name', through: ['organization'], altClass: '' },
             {
               label: 'Blocked?', data: 'is_blocked', color: [
