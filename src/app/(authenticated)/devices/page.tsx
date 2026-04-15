@@ -232,8 +232,8 @@ export default function DevicesPage() {
           }
           columns={[
             { label: 'id', data: 'id', subtitle: { label: 'label', data: 'label' }, altClass: 'font-bold capitalize' },
-            { label: 'Device', data: 'name' },
-            { label: 'Phone No', data: 'phone_no', through: ['organization'] },
+            { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
+            { label: 'Device', data: 'short_name', subtitle: { label: 'name', data: 'name' } },
             { label: 'Firmware', data: 'current_firmware_version' },
             {
               label: 'Subscription',
@@ -275,7 +275,7 @@ export default function DevicesPage() {
                 }
               ], altClass: 'mt-2'
             },
-            { label: 'Outlet', data: 'name', through: ['outlet'], altClass: 'lg:mt-0 mt-2' },
+
             { label: 'Organization', data: 'name', through: ['organization'], altClass: '' },
             {
               label: 'Blocked?', data: 'is_blocked', color: [
