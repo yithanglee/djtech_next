@@ -21,6 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <meta name="google-site-verification" content="fVlVGfA4x_oJok_AcneASR_KxqJeohZa0qQTFL8csJw" />
       <body className={`${inter.className} ${inter.variable}`}>
         <AuthProvider>
           {children}
